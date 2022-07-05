@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class l003_Traversal_set {
 
@@ -144,12 +145,12 @@ public class l003_Traversal_set {
 
     static TreeNode prev = null;
 
-    public static boolean isBST_static(TreeNode root) {
+    public static boolean isBST_valid_static(TreeNode root) {
         if (root == null) {
             return true;
         }
 
-        boolean left = isBST_static(root.left);
+        boolean left = isBST_valid_static(root.left);
         if (!left) {
             return false;
         }
@@ -161,7 +162,7 @@ public class l003_Traversal_set {
 
         prev = root;
 
-        boolean right = isBST_static(root.right);
+        boolean right = isBST_valid_static(root.right);
         if (!right) {
             return false;
         }
@@ -170,14 +171,14 @@ public class l003_Traversal_set {
     }
 
     // Is valid BST by morris inOrderTraversal
-    // Solved using the same property that inorder of BST is sorted. 
-    // Prev ko curr se compare karna hai taki agar koi bhi agar prev se chota mile, to false return kar denge. Same uper ki tarah.
+    // Solved using the same property that inorder of BST is sorted.
+    // Prev ko curr se compare karna hai taki agar koi bhi agar prev se chota mile,
+    // to false return kar denge. Same uper ki tarah.
 
-    
     public boolean isValidBST_Morris(TreeNode root) {
         return morrisInOrderTraversal(root);
     }
-    
+
     public static TreeNode validBST_Morris_Rightmost(TreeNode left, TreeNode curr) {
         while (left.right != null && curr != left.right) {
             left = left.right;
@@ -186,40 +187,358 @@ public class l003_Traversal_set {
         return left;
     }
 
-    public boolean morrisInOrderTraversal(TreeNode root){
-        TreeNode prev=null;
-        TreeNode curr=root;
-        while(curr!=null){
-            
-            if(prev!=null && prev.val >= curr.val){
+    public boolean morrisInOrderTraversal(TreeNode root) {
+        TreeNode prev = null;
+        TreeNode curr = root;
+        while (curr != null) {
+
+            if (prev != null && prev.val >= curr.val) {
                 return false;
             }
-            TreeNode left=curr.left;
-            
-            if(left == null){
+            TreeNode left = curr.left;
+
+            if (left == null) {
                 // ans.add(curr.val);
-                prev=curr;
-                curr=curr.right;
-            }else{
-                TreeNode currKeLeftKaRightMost= validBST_Morris_Rightmost(left, curr);
-                if(currKeLeftKaRightMost.right == null){
-                    currKeLeftKaRightMost.right=curr; // thread creation
-                    curr=curr.left;
-                }else{
-                    currKeLeftKaRightMost.right=null;
+                prev = curr;
+                curr = curr.right;
+            } else {
+                TreeNode currKeLeftKaRightMost = validBST_Morris_Rightmost(left, curr);
+                if (currKeLeftKaRightMost.right == null) {
+                    currKeLeftKaRightMost.right = curr; // thread creation
+                    curr = curr.left;
+                } else {
+                    currKeLeftKaRightMost.right = null;
                     // ans.add(curr.val);
-                    prev=curr;
-                    curr=curr.right;
+                    prev = curr;
+                    curr = curr.right;
                 }
             }
         }
-        
+
         return true;
     }
 
-    // Second way of inorder
-    // aate he root node ke sare left dal diye
-    // agar mera left  == null hai to print kara or apne aap ko remove kiya
-    // agar merepe right hai to pehle maine apne app ko remove kiya aur tab apne right ko dalo aur right ke sare left ko dal diya
-    // 
+    // Another iterative method for inorder traversal
+    // Sabse pehle root ko dala aur root ke left ke sare nodes ko dala
+    // ab hum iske baad sidhe left mai pahunch gaye
+    // Humne element ko remove kiya aur agar uske right hai to right ko dala aur
+    // right ke sare left ko dal diya
+    // Aur aisa hum tab tak karte rahenge jab tak stack khali nhi ho jata
+
+    // Basically yahan pe hum recursive stack ko emulate kar rahe hain, so iterative
+    // hai to ye thoda fast hoga per best solution is morris traversal
+
+    // It is used when the interviewer says that the modification to tree is not
+    // allowed. Hence cannot use morris traversal
+
+    public static void addNodeAndItsAllLeft(TreeNode node, LinkedList<TreeNode> st) {
+        while (node != null) {
+            st.addFirst(node);
+            node = node.left;
+        }
+    }
+
+    public static boolean Tree_Inorder_stack_method(TreeNode root) {
+        LinkedList<TreeNode> st = new LinkedList<>();
+        addNodeAndItsAllLeft(root, st);
+        TreeNode prev = null;
+        while (st.size() != 0) {
+            TreeNode node = st.removeFirst();
+            if (prev != null && prev.val >= node.val) {
+                return false;
+            }
+            prev = node;
+            // System.out.println(node);
+
+            addNodeAndItsAllLeft(node.right, st);
+
+        }
+
+        return true;
+    }
+
+    // Binary Search Iterator
+    // https://leetcode.com/problems/binary-search-tree-iterator/
+    // Same logic of stack is used as used for inorder traversal
+
+    class BSTIterator {
+        // always use private variabe for those which cannot be accessed by outside
+        // world and are can only be accessed by its own class.
+        private LinkedList<TreeNode> st = new LinkedList<>();
+
+        private void addNodeAndItsAllLeft(TreeNode node, LinkedList<TreeNode> st) {
+            while (node != null) {
+                st.addFirst(node);
+                node = node.left;
+            }
+        }
+
+        public BSTIterator(TreeNode root) {
+            addNodeAndItsAllLeft(root, st);
+        }
+
+        public int next() {
+            TreeNode node = st.removeFirst();
+            addNodeAndItsAllLeft(node.right, st);
+            return node.val;
+        }
+
+        public boolean hasNext() {
+            return st.size() != 0;
+        }
+    }
+
+    // Solving BST iterator using Morris Traversal
+    // Try to dry run code for tree with only one node
+
+    // Logic is jahan jahan pe answer mmil raha hai wahan pe break laga do taki bas
+    // ek bar answer mile
+    // Bas itna he karna tha
+
+    class BSTIterator_Morris_Traversal {
+
+        private TreeNode curr = null;
+
+        private TreeNode rightMost(TreeNode left, TreeNode curr) {
+            while (left.right != null && left.right != curr) {
+                left = left.right;
+            }
+
+            return left;
+        }
+
+        private int Morris_Order_Traversal() {
+            // Rememmber multiple return statement is not good practice. Try to have just
+            // one return statement in a function. Therefore a variable rv is used and
+            // returned at last.
+
+            int rv = (int) 1e9;
+            while (curr != null) {
+                TreeNode left = curr.left;
+                if (left == null) {
+                    // ans.add(curr);
+                    rv = curr.val;
+                    curr = curr.right;
+                    break;
+                } else {
+                    TreeNode currKeLeftKaRightMostElement = rightMost(left, curr);
+
+                    if (currKeLeftKaRightMostElement.right == null) {
+                        currKeLeftKaRightMostElement.right = curr; // thread creation
+                        curr = curr.left;
+                    } else {
+                        currKeLeftKaRightMostElement.right = null; // thread break
+                        // ans.add(curr);
+                        rv = curr.val;
+                        curr = curr.right;
+                        break;
+                    }
+                }
+            }
+            return rv;
+        }
+
+        public BSTIterator_Morris_Traversal(TreeNode root) {
+            this.curr = root;
+        }
+
+        public int next() {
+            return Morris_Order_Traversal();
+        }
+
+        public boolean hasNext() {
+            return curr != null;
+        }
+    }
+
+    // https://leetcode.com/problems/kth-smallest-element-in-a-bst
+    // Logic is same. Inorder of BST is sorted.
+
+    // Simply solved by using morris traversal
+    // If told to not do modification in tree, use stack method for inorder
+    public static int kthSmallest(TreeNode root, int k) {
+        int kSmallest = -(int) 1e9;
+        TreeNode curr = root;
+        while (k > 0) {
+            TreeNode left = curr.left;
+            if (left == null) {
+                // print
+                kSmallest = curr.val;
+                k--;
+                curr = curr.right;
+            } else {
+                TreeNode currKeLeftKaRightMost = rightMostNode(left, curr);
+
+                if (currKeLeftKaRightMost.right == null) {
+                    currKeLeftKaRightMost.right = curr; // thread creation
+                    curr = curr.left;
+                } else {
+                    currKeLeftKaRightMost.right = null;
+                    // print
+                    kSmallest = curr.val;
+                    k--;
+                    curr = curr.right;
+                }
+            }
+        }
+
+        return kSmallest;
+    }
+
+    // Kth Largest element in BST
+    // https://practice.geeksforgeeks.org/problems/kth-largest-element-in-bst/1/
+
+    public static int size(TreeNode root) {
+        return root == null ? 0 : size(root.left) + size(root.right) + 1;
+    }
+
+    public static int kthLargest(TreeNode root, int k) {
+
+        int treeSize = size(root);
+        int elementFromFirst = treeSize - k + 1;
+        int kLargest = (int) 1e9;
+        TreeNode curr = root;
+        while (elementFromFirst > 0) {
+            TreeNode left = curr.left;
+            if (left == null) {
+                // print
+                kLargest = curr.val;
+                elementFromFirst--;
+                curr = curr.right;
+            } else {
+                TreeNode currKeLeftKaRightMost = rightMostNode(left, curr);
+
+                if (currKeLeftKaRightMost.right == null) {
+                    currKeLeftKaRightMost.right = curr; // thread creation
+                    curr = curr.left;
+                } else {
+                    currKeLeftKaRightMost.right = null;
+                    // print
+                    kLargest = curr.val;
+                    elementFromFirst--;
+                    curr = curr.right;
+                }
+            }
+        }
+
+        return kLargest;
+    }
+
+    // https://leetcode.ca/2017-01-29-426-Convert-Binary-Search-Tree-to-Sorted-Doubly-Linked-List/
+    // https://www.pepcoding.com/resources/data-structures-and-algorithms-in-java-levelup/trees/convert-binary-search-tree-to-doubly-linked-list/ojquestion
+
+    // Convert a BST to a sorted Doubly Linked List
+    // What we did was create a dummy pointer and used it
+    // Now dummy pointer is firstly attched to the first inorder node
+    // after that pointers are attached and the prev is moved to the next pointer
+    // and curr is also changed since we always remove one element from the stack
+
+    // Hence therefore the Doubly linked list is made
+
+    // Method 1 : stack
+
+    public static void insertAllLeft(TreeNode node, LinkedList<TreeNode> st) {
+        while (node != null) {
+            st.addFirst(node);
+            node = node.left;
+        }
+    }
+
+    public static TreeNode BST_To_DLL(TreeNode root) {
+        LinkedList<TreeNode> st = new LinkedList<>();
+        insertAllLeft(root, st);
+        TreeNode prev = new TreeNode(-1), dp = prev;
+        while (st.size() > 0) {
+            TreeNode rv = st.removeFirst();
+            prev.right = rv;
+            rv.left = prev;
+            prev = prev.right;
+            insertAllLeft(rv.right, st);
+        }
+
+        // This extra is done to convert it into circular linkedlist
+        prev.right = dp.right;
+        dp.right.left = prev;
+        TreeNode nHead = dp.right;
+        dp.right = null;
+        return nHead;
+    }
+
+    // Method 2 : Morris Traversal
+
+    public static TreeNode right_most_node(TreeNode left, TreeNode curr) {
+        while (left.right != null && curr != left.right) {
+            left = left.right;
+        }
+
+        return left;
+    }
+
+    public static TreeNode BST_To_DLL_Morris_Traversal(TreeNode root) {
+
+        TreeNode curr = root;
+        TreeNode prev = new TreeNode(-1), dp = prev;
+
+        while (curr != null) {
+            TreeNode left = curr.left;
+
+            if (left == null) {
+                // Print
+                prev.right = curr;
+                curr.left = prev;
+                prev = prev.right;
+                curr = curr.right;
+            } else {
+                TreeNode currKeLeftKaRightMost = right_most_node(left, curr);
+
+                if (currKeLeftKaRightMost.right == null) {
+                    currKeLeftKaRightMost.right = curr; // thread creation
+                    curr = curr.left;
+                } else {
+                    currKeLeftKaRightMost.right = null; // thread break
+                    // print
+                    prev.right = curr;
+                    curr.left = prev;
+                    prev = prev.right;
+                    curr = curr.right;
+                }
+            }
+        }
+
+        prev.right = dp.right;
+        dp.right.left = prev;
+        TreeNode nHead = dp.right;
+        dp.right = null;
+        return nHead;
+    }
+
+    // Methhod : 3
+    // Purely recursive method using static variable
+
+    public static TreeNode bToDLL(TreeNode root) {
+        BST_To_DLL(root);
+        prev.right = dp.right;
+        dp.right.left = prev;
+        TreeNode nHead = dp.right;
+        dp.right = null;
+        return nHead;
+    }
+
+    static TreeNode prev = new TreeNode(-1);
+    static TreeNode dp = prev;
+
+    public static void BST_To_DLL_recursive(TreeNode root) {
+
+        if (root == null) {
+            return;
+        }
+
+        BST_To_DLL_recursive(root.left);
+
+        prev.right = root;
+        root.left = prev;
+        prev = prev.right;
+
+        BST_To_DLL_recursive(root.right);
+    }
 }
