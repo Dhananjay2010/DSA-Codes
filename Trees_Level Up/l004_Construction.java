@@ -13,7 +13,18 @@ public class l004_Construction {
         }
     }
 
-    // Construct Tree form inorder . i.e sorted array
+    public static class ListNode {
+        int val = 0;
+        ListNode next = null;
+
+        ListNode(int val) {
+            this.val = val;
+        }
+    }
+
+    // Construct Tree form inorder of a BST . i.e sorted array
+
+    // We know that inorder of BST is sorted.
 
     // Basic faith :
     // Maine sabse middle wale ko root banaya.
@@ -79,26 +90,65 @@ public class l004_Construction {
         if (head == null || head.right == null) // Very important condition
             return head;
 
-        TreeNode root = middle_Node_LinkedList(head);
+        TreeNode mid = middle_Node_LinkedList(head);
         // Most important condition. Not easily figurable. Dry run.
-        TreeNode leftDLLHead = head == root ? null : head; // To get free from infinite loop that was comming because of
-                                                           // when there was single node. The node will start to point
-                                                           // itself, hence becoming an infinite loop condition.
-                                                           // Therefore null is passed if the head is same as the node
-                                                           // value
-        TreeNode rightDLLHead = root.right;
+        TreeNode leftDLLHead = head == mid ? null : head; // To get free from infinite loop that was comming because of
+                                                          // when there was single node. The node will start to point
+                                                          // itself, hence becoming an infinite loop condition.
+                                                          // Therefore null is passed if the head is same as the node
+                                                          // value.
+                                                          // == > Always remember mai mid ke left aur right ki call laga
+                                                          // raha hun isislye ye wala check important hai
+        TreeNode rightDLLHead = mid.right;
 
-        if (root.left != null) // Jaroori nhi hai ki humesha root ka left exist kare. For a single node, left
-                               // to hoga he nhi, to head ka left null point exception de dega
-            root.left.right = null;
-        root.left = root.right = rightDLLHead.left = null; // To break all the links of doubly link list. After all
-                                                           // links are broken, treat root as a single node
+        if (mid.left != null) // Jaroori nhi hai ki humesha root ka left exist kare. For a single node, left
+                              // to hoga he nhi, to head ka left null point exception de dega
+            mid.left.right = null;
+        mid.left = mid.right = rightDLLHead.left = null; // To break all the links of doubly link list. After all
+                                                         // links are broken, treat root as a single node
 
-        root.left = sorted_DLL_To_BST(leftDLLHead);
-        root.right = sorted_DLL_To_BST(rightDLLHead);
+        mid.left = sorted_DLL_To_BST(leftDLLHead);
+        mid.right = sorted_DLL_To_BST(rightDLLHead);
+
+        return mid;
+    }
+
+    // Sorted List to BST
+    // https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/
+    // Leetcode 109
+    // Dry run on Test case : -10, -3, 0, 5, 9
+
+    public TreeNode sortedListToBST(ListNode head) {
+
+        if (head == null || head.next == null) {
+            return head == null ? null : new TreeNode(head.val);
+        }
+
+        ListNode slow = head, fast = head;
+        ListNode prev = null;
+        while (fast.next != null && fast.next.next != null) {
+            prev = slow;
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        ListNode mid = slow;
+        ListNode nhead = mid.next;
+        mid.next = null;
+        if (prev != null) { // Also important because in some cases prev will not exist. Like for two node
+                            // list.
+            prev.next = null;
+        }
+
+        TreeNode root = new TreeNode(mid.val);
+        root.left = sortedListToBST(head == mid ? null : head); // very important condition (head == mid ? null : head)
+        root.right = sortedListToBST(nhead);
 
         return root;
+
     }
+
+    // <============================== Important Question ========================>
 
     // Convert a binary Tree into BST
     // Fitst convert Binary Tree to Doubly linked list
@@ -108,6 +158,9 @@ public class l004_Construction {
 
     // BT ===> DLL == > SDL ==> BST
 
+    // Now write seperate function for all of the conversions
+    // When writing a function, just think about that function only. Nothing else.
+
     public static TreeNode rightMost(TreeNode left, TreeNode curr) {
         while (left.right != null && curr != left.right) {
             left = left.right;
@@ -116,6 +169,9 @@ public class l004_Construction {
         return left;
     }
 
+    // converting the binary tree to doubly linked list
+    // Simply taking a dummy node and whenever we find a inorder node, we attach a
+    // pointer and keep moving forward
     public static TreeNode morrisTraversal_BinaryTree_To_DoublyLinkedList(TreeNode head) {
 
         TreeNode curr = head;
@@ -150,6 +206,8 @@ public class l004_Construction {
         return nHead;
     }
 
+    // Dry run. It is mostly same as merge two linked list.
+    // But here extra pointers have to be managed so dry run and then write the code
     public static TreeNode merge_two_sorted_doubly_linkedlist(TreeNode head1, TreeNode head2) {
 
         if (head1 == null || head2 == null) {
@@ -188,24 +246,212 @@ public class l004_Construction {
         return nHead;
     }
 
-    public static TreeNode sort_Doubly_LinkedList(TreeNode head) {
+    // Sorting the doubly linked list is done by using the merge sort techinique.
+    // Logic is every single node is already sorted so then merge it in a sorted
+    // way. This way whole DLL can be sorted.
+    // Bottom Up.
+    // If possible, first think of how to sort linked list. It is same like it, but
+    // here two pointers have to be managed.
+    // Dry run and then figure out. Think of what is required. Nothing else.
+    // Simple merge sort.
+
+    // Basic faith is maine apne left walon ko bola ki tum apne aap ko sort karke le
+    // aao aur right ko bola ki tum apne aap ko sort karke leke aao aur agar mai
+    // tumhe sort_merge kardunga to mujhe sorted DLL mil jayega
+    public static TreeNode merge_sort_Doubly_LinkedList(TreeNode head) {
 
         if (head == null || head.right == null) {
             return head;
         }
         TreeNode mid = middle_Node_LinkedList(head);
-        TreeNode prev = mid.left, forw = mid.right;
-        mid.left = mid.right = forw.left = null;
-        if (prev != null) {
-            prev.right = null;
-        }
+        TreeNode forw = mid.right;
+        mid.right = forw.left = null;
 
         TreeNode nHead = forw;
-        TreeNode left = sort_Doubly_LinkedList(head == mid ? null : head);
-        TreeNode right = sort_Doubly_LinkedList(nHead);
+        TreeNode left = merge_sort_Doubly_LinkedList(head); // again an important condition.
+        TreeNode right = merge_sort_Doubly_LinkedList(nHead);
 
         return merge_two_sorted_doubly_linkedlist(left, right);
     }
+
+    public static TreeNode BT_To_BST(TreeNode root) {
+
+        // These three function gives us the BT to BST.
+
+        if (root == null) {
+            return root;
+        }
+
+        TreeNode head = morrisTraversal_BinaryTree_To_DoublyLinkedList(root); // form binary tree to doubly linked list
+        head = merge_sort_Doubly_LinkedList(head); // doubly Linked List to Sorted Doubly Linked List
+        return sorted_DLL_To_BST(head); // sorted dll to BST
+    }
+
+    // After sorting the doublt list, then call the function of converting the dll
+    // to BST. Then the fucntion becomes complete.
+
+    // Thats how you convert the Binary tree to BST.
+
+    // ========================= Here the questions ends==========================
+
+    // How to print a tree
+    // Just move in preorder and print left and right child of every preorder node.
+
+    // 2 -> 4 <- 6 ==> 4 has two child 2(left) and 6(right)
+    // 1 -> 2 <- 3 ==> 2 has two child 1(left) and 3(right)
+    // . -> 1 <- . ==> 1 has no child
+    // . -> 3 <- . ==> 3 has no child
+    // 5 -> 6 <- 7 ==> 6 has two child 5(left) and 7(right)
+    // . -> 5 <- . ==> 5 has no child
+    // . -> 7 <- . ==> 7 has no child
+
+    // Everything goes in inorder and the things are printed. So we can print tree
+    // like this.
+
+    public static void display(TreeNode node) {
+        if (node == null)
+            return;
+
+        String str = "";
+        str += ((node.left != null ? Integer.toString(node.left.val) : "."));
+        str += (" -> " + Integer.toString(node.val) + " <- ");
+        str += ((node.right != null ? Integer.toString(node.right.val) : "."));
+
+        System.out.println(str);
+
+        display(node.left);
+        display(node.right);
+    }
+
+    public static void display1(TreeNode node) {
+        if (node == null)
+            return;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append((node.left != null ? node.left.val : "."));
+        sb.append(" -> " + node.val + " <- ");
+        sb.append((node.right != null ? node.right.val : "."));
+
+        System.out.println(sb.toString());
+
+        display1(node.left);
+        display1(node.right);
+
+    }
+
+    // <====================Given a preorder of a BST, construct a BST.
+
+    // https://www.pepcoding.com/resources/data-structures-and-algorithms-in-java-levelup/trees/construct-bst-from-preorder-traversal/ojquestion
+    // https://leetcode.com/problems/construct-binary-search-tree-from-preorder-traversal/
+    // Leetcode 1008
+
+    // One can think to sort the array given and then convert it to BST, but it's
+    // complexity will be high and importantly the shape of the tree will be changed
+    // and we would not get the exact same BST, therefore cannot be used.
+
+    // So what we will do is decide the range of every element and then try to
+    // construct a bst.
+
+    // Taking an example of an array [8,3,1,6,4,7,10,14,13]
+
+    // 8 will be the root node since it is orevorder ao it will have range of -∞ to
+    // ∞ .
+    // We will also be keeping a static pointer over the array, which can be easily
+    // be replaced by array of size 1.
+
+    // So now the pointer moves to 3.
+    // The first thing to consider is that node just left to 8 will have the range
+    // of -∞ to 8. Why because we are considering the BST and it is sorted. So the
+    // left subtree will have values less than 8
+
+    // Now the first call of 8 left is made.
+
+    // Now because 3 comes in range of -∞ to 8, therefore next call of 3 left is
+    // made and the pointer moves to 1.
+
+    // Why range -∞ to 3 ? It is because all nodes to the left of 3 will be less
+    // than 3, since we are considering a BST.
+
+    // Now because 1 comes in range of -∞ to 3, therefore next call of 1 left is
+    // made and the pointer moves to 6.
+
+    // Now because 6 does not come in range of -∞ and 1, therefore it returned back
+    // and right call of 1 is made. But because 6 does not come in range of 1 to 3
+    // therefore is returned back null.
+
+    // Now both call of 1 is made, now the node is created and returned and
+    // connected to 3.
+
+    // Now 3 right call is made.
+
+    // Now because 6 is in the range of 3 to 8, therefore the call is made of 6
+    // left and the pointer moves to 4.
+    // Why 3 to 8 ? It is because the elements at the right side of 3 will be
+    // greater than 3, but ofcourse will be less than 8 since we are considering a
+    // BST
+
+    // Hence the whole dry run goes on similary for all the elements by passing the
+    // ranges.
+
+    static int p = 0; // rather than using a static variable, use an array of length 1.
+
+    public TreeNode bstFromPreorder(int[] preorder, int leftRange, int rightRange) {
+
+        if (p > preorder.length - 1 || preorder[p] < leftRange || preorder[p] > rightRange) {
+            return null;
+        }
+
+        TreeNode node = new TreeNode(preorder[p]);
+        p++;
+
+        node.left = bstFromPreorder(preorder, leftRange, node.val);
+        node.right = bstFromPreorder(preorder, node.val, rightRange);
+
+        return node;
+    }
+
+    public TreeNode bstFromPreorder(int[] preorder) {
+        return bstFromPreorder(preorder, -(int) 1e9, (int) 1e9);
+    }
+
+    // <============================Construct BST from Postorder
+
+    // What we are goinn to do is similar to above, but rather with a silght change.
+    // We are going to keep the pointer from the end of the array because last node
+    // will be the root nod because of post order.
+    // Then we going to keep decreasing the pointer.
+
+    // Range concept remains the same.
+
+    // Here we are going to make right call first since becacuse the right subtree
+    // elements are first going to be touched when we traverse the postorder array
+    // reverse.
+
+    // Dry run for test case [1,4,7,6,3,13,14,10,8] same tree postorder as above
+
+    public static TreeNode bstFromPostorder(int[] postorder, int leftRange, int rightRange, int[] idx) {
+        int i = idx[0];
+        if (i <= -1 || postorder[i] < leftRange || postorder[i] > rightRange)
+            return null;
+
+        TreeNode root = new TreeNode(postorder[i]);
+        idx[0]--;
+
+        root.right = bstFromPostorder(postorder, root.val, rightRange, idx);
+        root.left = bstFromPostorder(postorder, leftRange, root.val, idx);
+
+        return root;
+    }
+
+    public static TreeNode bstFromPostorder(int[] postorder) {
+        int[] idx = new int[1];
+        idx[0] = postorder.length - 1;
+        return bstFromPostorder(postorder, -(int) 1e9, (int) 1e9, idx);
+    }
+
+    // <==================Construct a BST from level order
+
+    //
 
     public static void main(String[] args) {
 
