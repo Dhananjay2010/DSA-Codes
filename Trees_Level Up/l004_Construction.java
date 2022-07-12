@@ -449,9 +449,268 @@ public class l004_Construction {
         return bstFromPostorder(postorder, -(int) 1e9, (int) 1e9, idx);
     }
 
-    // <==================Construct a BST from level order
+    // <================================Construct a BST from level order
 
-    //
+    // https://www.pepcoding.com/resources/data-structures-and-algorithms-in-java-levelup/trees/construct-bst-from-levelorder-traversal/ojquestion
+
+    // What we are again going to do is have range for each element.
+    // But How in levelorder??
+
+    // Basically what is done is again range concept is used. But level order is
+    // given therefore queue is used to store the range.
+
+    // Therefore a class pair is made consisting of a parent node and the left and
+    // right ranges.
+
+    // considering a test case of [8,3,10,1,6,14,4,7,13]
+    // Maintaining a variable for moving the pointer in array.
+
+    // Now 8 will be our root node. Therefore already the range of -∞ to ∞ is added
+    // in the queue. Now we check if the top pair of queue is in the range of our
+    // first array element, if yes then we remove the first element from queue and
+    // then in queue its ranges to its left child and right child, with parent.
+
+    // Then the array iterator is increased.
+
+    // Parent because we need to where the child needs to be attached.
+
+    // Next comes the second element. Now we check if the top pair of queue is in
+    // the range of our array element, if yes then we remove the pair. Now because
+    // the pair parent is
+    // not null, we have to decide where to add the current array element. If the
+    // array value is less than the parent, it is attached to left of the parent
+    // (because in BST, every node is a BST), otherwise attached to the right of the
+    // parent.
+
+    // Then we add the range of left and right child in the queue with parent as
+    // current element and then increase the iterator.
+
+    // Same thing goes on.
+
+    // You did the whole thing right, but the put & in place of || in while
+    // condition. Always check for these type of sily mistakes.
+    public static class level_order_pair {
+
+        TreeNode par = null;
+        int leftRange = -(int) 1e9;
+        int rightRange = (int) 1e9;
+
+        level_order_pair(TreeNode node, int leftRange, int rightRange) {
+            this(leftRange, rightRange); // Constructor call must be the first statement in a constructor
+            this.par = node;
+        }
+
+        level_order_pair(int leftRange, int rightRange) {
+            this.leftRange = leftRange;
+            this.rightRange = rightRange;
+        }
+
+    }
+
+    public static TreeNode bstFromLevelorder(int[] levelorder, LinkedList<level_order_pair> q) {
+
+        int l = levelorder.length;
+        int i = 0;
+        TreeNode head = null;
+        q.addLast(new level_order_pair(null, -(int) 1e9, (int) 1e9));
+        while (i < l) {
+            while (q.size() != 0
+                    && (levelorder[i] < q.getFirst().leftRange || levelorder[i] > q.getFirst().rightRange)) {
+                // While loop used to remove all not viable pair inserted in queue. Aise pair jo
+                // humare array ke element ki range ko satosfy na kare unhe ek sath nikalne ke
+                // liye
+
+                level_order_pair noUseNode = q.removeFirst();
+            }
+
+            level_order_pair rp = q.removeFirst();
+            TreeNode node = new TreeNode(levelorder[i]);
+
+            if (rp.par != null) {
+                if (levelorder[i] < rp.par.val) {
+                    rp.par.left = node;
+                } else {
+                    rp.par.right = node;
+                }
+            } else {
+                head = node;
+            }
+
+            q.addLast(new level_order_pair(node, rp.leftRange, levelorder[i]));
+            q.addLast(new level_order_pair(node, levelorder[i], rp.rightRange));
+            i++;
+        }
+
+        return head;
+    }
+
+    public static TreeNode bstFromLevelorder(int[] levelorder) {
+
+        LinkedList<level_order_pair> q = new LinkedList<>();
+        return bstFromLevelorder(levelorder, q);
+    }
+
+    // <=================Serialize and Deserialize============================
+    // https://leetcode.com/problems/serialize-and-deserialize-bst/
+    // Leetcode 449
+
+    // Basically karna kya hai ki pehle preorder ke elements ki ek single string
+    // bana do. Isko kehte hain serialize.
+
+    // To get the preorder string any method can be used. Stack or morris or simple
+    // recursion
+
+    // Ab badme usi string se dubara tree banana is called deserialize.
+    // This can be easily done by first converting the string into an array of
+    // integers and then applying the same above method to convert to BST from
+    // preorder.
+
+    // ***** Don't use inorder as the structure of the tree changes.
+
+    // Encodes a tree to a single string.
+    public String serialize(TreeNode root) {
+
+        StringBuilder sb = new StringBuilder();
+
+        serialize(root, sb);
+
+        return sb.toString();
+    }
+
+    private void serialize(TreeNode root, StringBuilder sb) {
+        if (root == null) {
+            return;
+        }
+
+        sb.append(root.val + " ");
+        serialize(root.left, sb);
+        serialize(root.right, sb);
+    }
+
+    private TreeNode convertToBSTFromPreorder(int[] preorder, int leftRange, int rightRange, int[] index) {
+
+        int i = index[0];
+
+        if (i > preorder.length - 1 || preorder[i] < leftRange || preorder[i] > rightRange) {
+            return null;
+        }
+
+        TreeNode root = new TreeNode(preorder[i]);
+        index[0]++;
+        root.left = convertToBSTFromPreorder(preorder, leftRange, root.val, index);
+        root.right = convertToBSTFromPreorder(preorder, root.val, rightRange, index);
+
+        return root;
+    }
+
+    public TreeNode deserialize(String data) {
+
+        if (data == "") { // if node data, return
+            return null;
+        }
+        String[] arr = data.split(" ");
+        int[] preorder = new int[arr.length];
+
+        for (int i = 0; i < preorder.length; i++) {
+            preorder[i] = Integer.parseInt(arr[i]);
+        }
+
+        int[] index = new int[] { 0 };
+        TreeNode head = convertToBSTFromPreorder(preorder, -(int) 1e9, (int) 1e9, index);
+        return head;
+    }
+
+    // <=============Verify is the given preorder is the pre order of BST=========>
+
+    // https://www.lintcode.com/problem/1307/
+    // By dry run, we figured out that if the array is traversed fully, then all the
+    // nodes get connected to the parent node. Therefore the preorder is a BST.
+
+    // And if array is not fully traversed, then every node is not able to attached
+    // to the parent. Therefore not a BST.
+
+    // Same code as above. Nothing changed.
+
+    // There is also a stack method for this. But wo samaj ni aaya. Try next time.
+
+    public static boolean canRepresentBST(int arr[], int N) {
+        // code here
+        int[] index = new int[] { 0 };
+        verifyPreorder(arr, -(int) 1e9, (int) 1e9, index);
+
+        return index[0] > arr.length - 1 ? true : false;
+    }
+
+    public static void verifyPreorder(int[] preorder, int leftRange, int rightRange, int[] index) {
+
+        int i = index[0];
+        if (i > preorder.length - 1 || preorder[i] < leftRange || preorder[i] > rightRange) {
+            return;
+        }
+
+        index[0]++;
+        verifyPreorder(preorder, leftRange, preorder[i], index);
+        verifyPreorder(preorder, preorder[i], rightRange, index);
+    }
+
+    // <==========================================Binary Tree Construction=========>
+
+    // <================construct Binary Tree from Preorder and inorder
+
+    // Inorder tells me the nodes that are going to lie in the left subtree and
+    // rightsubtree. How ? . By finding root node in the inorder and then all values
+    // to the left to the nodes consist of the left subtree of the root and all the
+    // values to the right consist of the right subtree
+
+    // Therefore inorder is needed. Otherwise I won't be able to figure out that
+    // which node belongs to left subtree or right subtree.
+    // Preorder first node is always the root node.
+
+    // So what to do ?
+
+    // First node in preorder will be alwasys the root node. Then we need to define
+    // that in preorder array, upto which range it belongs to the left subtree. To
+    // do that we search the root element in the inorder. So the index found in the
+    // inorder, the left to that index, they will belong to left subtree and to the
+    // right will belong to the right subtree. Bu we need to define the preorder
+    // range. So to calculate its range, we calculate the number of elements in
+    // inorder from start to root value index. That will help to get the preorder
+    // range of the left subtree. If this count comes 2, then psi + 1 to psi + 2
+    // will be the reange for left subtree and psi + 2 + 1 to pei will be the range
+    // of right subtree for preorder.
+
+    // For range for inorder is easy. esi to index - 1 will constitute the left
+    // subtree
+    // index + 1 to iei will constitute the right sub tree range.
+
+    // Hence the
+
+    // psi : preorder starting index
+    // pei : preorder ending index
+    // isi : inorder starting index
+    // iei : inorder ending index
+    public static TreeNode buildTree(int[] preorder, int psi, int pei, int[] inorder, int isi, int iei) {
+        if (psi > pei) // Since the root element is always from the preorder, so just checking the
+                       // preorder index is fine.
+            return null;
+
+        int idx = isi;
+        while (inorder[idx] != preorder[psi]) // Don't check everytime from 0 to n in inorder. Just check in range
+                                              // given.
+            idx++;
+
+        int tnel = idx - isi; // total no of elements in the left subtree
+        TreeNode root = new TreeNode(preorder[psi]);
+        root.left = buildTree(preorder, psi + 1, psi + tnel, inorder, isi, idx - 1);
+        root.right = buildTree(preorder, psi + tnel + 1, pei, inorder, idx + 1, iei);
+
+        return root;
+    }
+
+    public static TreeNode buildTree(int[] preorder, int[] inorder) {
+        int n = preorder.length;
+        return buildTree(preorder, 0, n - 1, inorder, 0, n - 1);
+    }
 
     public static void main(String[] args) {
 
