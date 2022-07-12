@@ -689,7 +689,8 @@ public class l004_Construction {
     // pei : preorder ending index
     // isi : inorder starting index
     // iei : inorder ending index
-    public static TreeNode buildTree(int[] preorder, int psi, int pei, int[] inorder, int isi, int iei) {
+    public static TreeNode buildTreeFromPreAndInOrder(int[] preorder, int psi, int pei, int[] inorder, int isi,
+            int iei) {
         if (psi > pei) // Since the root element is always from the preorder, so just checking the
                        // preorder index is fine.
             return null;
@@ -701,15 +702,15 @@ public class l004_Construction {
 
         int tnel = idx - isi; // total no of elements in the left subtree
         TreeNode root = new TreeNode(preorder[psi]);
-        root.left = buildTree(preorder, psi + 1, psi + tnel, inorder, isi, idx - 1);
-        root.right = buildTree(preorder, psi + tnel + 1, pei, inorder, idx + 1, iei);
+        root.left = buildTreeFromPreAndInOrder(preorder, psi + 1, psi + tnel, inorder, isi, idx - 1);
+        root.right = buildTreeFromPreAndInOrder(preorder, psi + tnel + 1, pei, inorder, idx + 1, iei);
 
         return root;
     }
 
     public static TreeNode buildTree(int[] preorder, int[] inorder) {
         int n = preorder.length;
-        return buildTree(preorder, 0, n - 1, inorder, 0, n - 1);
+        return buildTreeFromPreAndInOrder(preorder, 0, n - 1, inorder, 0, n - 1);
     }
 
     public static void main(String[] args) {
