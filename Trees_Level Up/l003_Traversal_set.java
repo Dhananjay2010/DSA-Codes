@@ -541,4 +541,95 @@ public class l003_Traversal_set {
 
         BST_To_DLL_recursive(root.right);
     }
+
+    // <==== Predecessor and Successor of a Binary Tree=====>
+    // To do this, just get the inorder traversal of Binary Tree.
+
+    // Jab bhi previous ka data value ke equal hoga, to jo curr hoga wo successor ke
+    // equal hoga.
+
+    // Aur jab curr ki value given data ke equal hogi, to us samay jo prev hoga whi
+    // predecessor ke equla hoga
+
+    // Bas ye figure kiya dry run se.
+
+    // curr.right nhi hoga successor ke equal. It is true for some test cases, but
+    // not for all.
+    // For test case : 78, 33, 81, 1, 70, 79,null. It is the level order of a tree.
+
+    // So if the data is 78, the corrent ans should be 79, not 81.
+
+    // Just dry run for it, you will get the ans.
+    // Dhyan rakhna. Tune galat kiya tha.
+
+    public static TreeNode getRightMostNode(TreeNode left, TreeNode curr) {
+
+        while (left.right != null && curr != left.right) {
+            left = left.right;
+        }
+
+        return left;
+    }
+
+    public static void findPreSuc(TreeNode root, int key) {
+        TreeNode curr = root, prev = null, pred = null, succ = null;
+        while (curr != null) {
+            TreeNode left = curr.left;
+            if (left == null) {
+                if (curr.val == key) {
+                    pred = prev;
+                }
+                if (prev != null && prev.val == key) { // prev!=null an important check. Don't forget.
+                    succ = curr;
+                }
+
+                prev = curr;
+                curr = curr.right;
+            } else {
+                TreeNode rmn = getRightMostNode(left, curr); // right most node
+                if (rmn.right == null) {
+                    rmn.right = curr;
+                    curr = curr.left;
+                } else {
+                    rmn.right = null;
+
+                    if (curr.val == key) {
+                        pred = prev;
+                    }
+                    if (prev != null && prev.val == key) {
+                        succ = curr;
+                    }
+
+                    prev = curr;
+                    curr = curr.right;
+                }
+            }
+
+        }
+    }
+
+    // <==== Predecessor and Successsor in BST========>
+    // Constraint : Time Complexity : T(N), Space Complexity : O(1)
+
+    // Since the constraint is T(N), we cannot use recursive method.
+
+    public static void pre_succ_in_BST(TreeNode root, TreeNode key) {
+
+        TreeNode curr = root;
+        TreeNode pre=null;
+        TreeNode succ=null;
+        while (curr != null) {
+            
+            if()
+        }
+    }
+
+    // https://www.geeksforgeeks.org/boundary-traversal-of-binary-tree/
+
+    // 31 may recording
+    // https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/
+    // https://leetcode.com/problems/binary-tree-cameras/
+    // https://practice.geeksforgeeks.org/problems/clone-a-binary-tree/1/
+    // https://leetcode.com/problems/delete-node-in-a-bst/
+    // https://leetcode.com/problems/sum-of-distances-in-tree/
 }
