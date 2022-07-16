@@ -1,5 +1,6 @@
 import java.util.LinkedList;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class l004_Construction {
 
@@ -683,7 +684,19 @@ public class l004_Construction {
     // subtree
     // index + 1 to iei will constitute the right sub tree range.
 
-    // Hence the
+    // Its complexity will be O(nlogn)?
+    // How == >
+
+    // T(n)= n + T(n/2) + T(n/2); Solving this gives us time complexity.
+    // == > n for while loop. T(n/2) for each left and right call.
+
+    // But the worst case coomplexity is O(n²).
+    // When one recursive call gives T(1) and another gives T(n-1) complexity.
+    // T(1) means one element in one call and n -1 element in second call.
+
+    // If we use an hashmap to store the values of inorder and its index, we can
+    // reduce this n for while loop to O(1), hence reducing the overall complexity
+    // to O(n).
 
     // psi : preorder starting index
     // pei : preorder ending index
@@ -696,8 +709,10 @@ public class l004_Construction {
             return null;
 
         int idx = isi;
-        while (inorder[idx] != preorder[psi]) // Don't check everytime from 0 to n in inorder. Just check in range
-                                              // given.
+        while (inorder[idx] != preorder[psi])
+            // While loop written to find the root element index in the inorder
+            // Don't check everytime from 0 to n in inorder. Just check in range
+            // given.
             idx++;
 
         int tnel = idx - isi; // total no of elements in the left subtree
@@ -708,9 +723,408 @@ public class l004_Construction {
         return root;
     }
 
-    public static TreeNode buildTree(int[] preorder, int[] inorder) {
+    public static TreeNode buildTreePreIn(int[] preorder, int[] inorder) {
         int n = preorder.length;
         return buildTreeFromPreAndInOrder(preorder, 0, n - 1, inorder, 0, n - 1);
+    }
+
+    // <=== Construct the tree from post and inorder======================>
+
+    // The logic remains the same.Just the ranges changes, which have to be figured
+    // out by dry run
+
+    // But now the pei have to be made root since it is
+    // postorder and the last element in the postorder is the root element
+
+    public TreeNode buildTreePostIn(int[] postorder, int psi, int pei, int[] inorder, int isi, int iei) {
+
+        if (psi > pei) {
+            return null;
+        }
+
+        int idx = isi;
+        while (inorder[idx] != postorder[pei]) {
+            idx++;
+        }
+        int tnel = idx - isi;
+        TreeNode root = new TreeNode(postorder[pei]);
+        root.left = buildTreePostIn(postorder, psi, psi + tnel - 1, inorder, isi, idx - 1);
+        root.right = buildTreePostIn(postorder, psi + tnel, pei - 1, inorder, idx + 1, iei);
+        return root;
+    }
+
+    public TreeNode buildTreePostIn(int[] postorder, int[] inorder) {
+        return buildTreePostIn(postorder, 0, postorder.length - 1, inorder, 0, inorder.length - 1);
+    }
+
+    // By using hashmap, reducing the complexity to O(n)
+
+    public TreeNode buildTreePostIn_Hashmap(int[] postorder, int psi, int pei, int[] inorder, int isi, int iei,
+            HashMap<Integer, Integer> map) {
+
+        if (psi > pei) {
+            return null;
+        }
+
+        int idx = map.get(postorder[pei]);
+
+        int tnel = idx - isi;
+        TreeNode root = new TreeNode(postorder[pei]);
+        root.left = buildTreePostIn_Hashmap(postorder, psi, psi + tnel - 1, inorder, isi, idx - 1, map);
+        root.right = buildTreePostIn_Hashmap(postorder, psi + tnel, pei - 1, inorder, idx + 1, iei, map);
+        return root;
+    }
+
+    public TreeNode buildTreePostIn_Hashmap(int[] postorder, int[] inorder) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < inorder.length; i++) {
+            map.put(inorder[i], i);
+        }
+        return buildTreePostIn_Hashmap(postorder, 0, postorder.length - 1, inorder, 0, inorder.length - 1, map);
+    }
+
+    // <=======Construct Binary Tree From Pre and Post======
+    // https://leetcode.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal/
+    // pre : 8,3,1,6,4,7,10,14,13
+    // post: 1,4,7,6,3,13,14,10,8
+
+    // Logic is same as above. We are jsut passing the starting and ending index of
+    // the post and preorder. And we are making the first element of the preorder
+    // the root node and setting
+
+    // But now we have postorder instead of inorder.
+
+    // Therefore we are searching the psi + 1 element in postorder array. Why ?
+
+    // Taking an above two array for pre and post order, making 8 as the top most
+    // root. Now we will want to know the number of elements in the left subtree so
+    // that we can have the range. Now psi + 1 is 3. We search it in postorder
+    // array. So the number to the left of 3 represent the number of elements below
+    // 3 in the tree since it is post order. Hence we got the count. But since we
+    // have to include 3 also, therefore we added +1 to the tnel.
+
+    // Just dry run and you will find the range.
+
+    // Important Note :
+    // In this question the tree structure can change if the pre and post order
+    // given are not of complete binary tree.
+    // Tree will definetly form but the structure can change. why?
+
+    // See the notes section in oneNote.
+
+    // But if you provide full binary tree, then tree form is of exact shape.
+
+    public TreeNode constructFromPrePost(int[] preorder, int psi, int pei, int[] postorder, int posi, int poei) {
+
+        if (psi > pei) {
+            return null;
+        }
+        TreeNode root = new TreeNode(preorder[psi]);
+
+        if (psi == pei) { // Important condition. Found after dry run.
+            return root;
+        }
+        int idx = posi;
+        while (postorder[idx] != preorder[psi + 1]) { // for one size array psi + 1 will not exist.Therefore, root is
+                                                      // returned before in the previous check.
+            idx++;
+        }
+
+        int tnel = idx - posi + 1; // Total number of elements in left subtree
+        root.left = constructFromPrePost(preorder, psi + 1, psi + tnel, postorder, posi, idx);
+        root.right = constructFromPrePost(preorder, psi + tnel + 1, pei, postorder, idx + 1, poei - 1);
+
+        return root;
+    }
+
+    public TreeNode constructFromPrePost(int[] preorder, int[] postorder) {
+        return constructFromPrePost(preorder, 0, preorder.length - 1, postorder, 0, postorder.length - 1);
+    }
+
+    // <=====Serialize and DeserializeBinary Tree =====================>
+    // https://leetcode.com/problems/serialize-and-deserialize-binary-tree/
+
+    // Serialize means to create a string so that the tree can be transfered easily.
+    // Deserialize means to create the tree again from serialize string.
+
+    // Complexity wise both the method are same.
+
+    // Method 1 :
+
+    // To serialize the tree, what we are going to do is create a string of
+    // preorder. But with a little twist.
+
+    // We are going to add # where we find null in our preorder.
+
+    // So the string would look like this after the preorder.
+
+    // 8 3 1 # # 6 4 # # 7 # # 10 # 14 13 # # #
+
+    // So first we can convert it into a array from string.
+
+    // Next to deserialize it, what we are going to do is keep a static variable and
+    // move it along the array.
+    // And wherever we find #, we are going to return null.
+
+    // So logic is to move in preorder and create node and make left and right call
+    // and if # comes, return return null;
+
+    // Encodes a tree to a single string.
+
+    private static void serialize_Binary_Tree(TreeNode root, StringBuilder sb) {
+
+        if (root == null) {
+            sb.append("#");
+            sb.append(" ");
+            return;
+        }
+
+        sb.append(root.val + " ");
+        serialize_Binary_Tree(root.left, sb);
+        serialize_Binary_Tree(root.right, sb);
+    }
+
+    public static String serialize_Binary_Tree(TreeNode root) {
+        StringBuilder sb = new StringBuilder();
+        serialize_Binary_Tree(root, sb);
+
+        return sb.toString();
+    }
+
+    private TreeNode deserialize_Binary_Tree(String[] arr, int[] index) {
+
+        int idx = index[0];
+
+        if (idx > arr.length - 1)
+            return null;
+        if (arr[idx].equals("#")) { // use equals rather than == for string comparison
+            index[0]++;
+            return null;
+        }
+        TreeNode root = new TreeNode(Integer.parseInt(arr[idx]));
+        index[0]++;
+        root.left = deserialize_Binary_Tree(arr, index);
+        root.right = deserialize_Binary_Tree(arr, index);
+
+        return root;
+    }
+
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize_Binary_Tree(String data) {
+
+        String[] arr = data.split(" ");
+
+        int[] index = new int[] { 0 };
+
+        return deserialize_Binary_Tree(arr, index);
+    }
+
+    // Method 2:
+
+    // What we did is simple get the levelorder string to serialize the binary tree.
+    // Wherever we encountered null, we replaced # with it and got the level order
+    // string
+
+    // Now what to do deserialize it ???
+
+    // We simply applied the bfs approach and maintained the queue. Now in bfs as
+    // soon as we remove the node, we have to connect the left and right child.
+
+    // Also we will also moving our index at the same time. Index is of array we got
+    // when we split the string by space.
+
+    // Now adding the left and right child in the queue. Same old bfs.
+
+    // Just keep a check of checking the value # since TreeNode will not accept it.
+    // So apply checks for it.
+
+    // Other than this is pure dry run.
+
+    public String level_order_traversal_Binary_Tree_serialize(TreeNode root) {
+        if (root == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        LinkedList<TreeNode> que = new LinkedList<>();
+
+        que.addLast(root);
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            while (size-- > 0) {
+                TreeNode rn = que.removeFirst();
+                if (rn == null) {
+                    sb.append("# ");
+                    continue;
+                }
+                sb.append(rn.val + " ");
+                que.addLast(rn.left);
+                que.addLast(rn.right);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    // Encodes a tree to a single string.
+    public String serialize_level_order(TreeNode root) {
+        return level_order_traversal_Binary_Tree_serialize(root);
+    }
+
+    public TreeNode deserialize_level_order_Binary_Tree(String[] arr, LinkedList<TreeNode> que) {
+
+        int idx = 0;
+        TreeNode root = new TreeNode(Integer.parseInt(arr[idx]));
+        idx++;
+        que.addLast(root);
+
+        while (que.size() != 0) {
+
+            int size = que.size();
+
+            while (size-- > 0) {
+                TreeNode rn = que.removeFirst();
+
+                if (rn == null) {
+                    continue;
+                }
+
+                TreeNode leftChild = arr[idx].equals("#") ? null : new TreeNode(Integer.parseInt(arr[idx]));
+                idx++;
+                TreeNode rightChild = arr[idx].equals("#") ? null : new TreeNode(Integer.parseInt(arr[idx]));
+                idx++;
+
+                rn.left = leftChild;
+                rn.right = rightChild;
+
+                que.add(leftChild);
+                que.addLast(rightChild);
+
+            }
+        }
+        return root;
+    }
+
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize_level_order_Binary_Tree(String data) {
+
+        if (data.length() == 0) {
+            return null;
+        }
+        String[] arr = data.split(" ");
+
+        LinkedList<TreeNode> que = new LinkedList<>();
+
+        return deserialize_level_order_Binary_Tree(arr, que);
+    }
+
+    // < ============= Check if Binary Tree is Balanced ========>
+
+    // Same basic recursion question.
+
+    // Maine left ko bola tu balanced hai aur right ko bola tu balanced hai/
+    // Aur agar tum dono balanced ho to ab height ka difference check karte hain.
+    // Agar 1 se equal yakam hai to mai balanced hun aur tab mai apni height nikalke
+    // set karunga, warna aise he return kar lunga
+
+    public class pair {
+        boolean isBal = true; // ek single node to balanced hota hai
+        int height = -1;
+    }
+
+    public pair isBalanced_pair(TreeNode root) {
+
+        if (root == null) {
+            return new pair();
+        }
+
+        pair left = isBalanced_pair(root.left);
+        if (left.isBal == false) {
+            return left;
+        }
+
+        pair right = isBalanced_pair(root.right);
+        if (!right.isBal) {
+            return right;
+        }
+
+        pair ans = new pair();
+        ans.isBal = false; // Pehle assume kiya ki mai balanced nhi hun aur tab condition check ki.
+
+        if (Math.abs(left.height - right.height) <= 1) {
+            ans.isBal = true;
+            ans.height = Math.max(left.height, right.height) + 1;
+        }
+
+        return ans;
+    }
+
+    public boolean isBalanced(TreeNode root) {
+
+        return isBalanced_pair(root).isBal;
+    }
+
+    // <==============Given a binary Tree, Find the largest BST subtree=====>
+    // https://practice.geeksforgeeks.org/problems/largest-bst/1
+
+    // Just have to return the size of largest BST subtree.
+    // A single node is a BST. Always remember.
+
+    // Same basic recursion call.
+
+    // Largest BST nikalne ke liye hume pehle ye bhi pata hona chahiye ki mere left
+    // aur right BST hain ki nhin.
+
+    // Agar mere left aur right BST he nhi hain to mai to BST ho he nhi sakta.
+    // Isiliye, isBST naam ka pair mai rakha hai, aur min max bhi isiliye rakha hai
+
+    public static class largestBST_Pair {
+        boolean isBST = true;
+        int min = (int) 1e9;
+        int max = -(int) 1e9;
+        int size = 0;
+        TreeNode largestRoot = null; // if largest BST node is required
+    }
+
+    public static largestBST_Pair largestBST(TreeNode root) {
+
+        if (root == null) {
+            return new largestBST_Pair();
+        }
+
+        largestBST_Pair left = largestBST(root.left);
+        largestBST_Pair right = largestBST(root.right);
+
+        largestBST_Pair ans = new largestBST_Pair();
+
+        ans.isBST = false;
+
+        if (left.isBST && right.isBST && root.val > left.max && root.val < right.min) { // to check if I am BST
+            ans.isBST = true;
+            ans.min = Math.min(root.val, left.min);
+            ans.max = Math.max(root.val, right.max);
+            ans.size = left.size + right.size + 1;
+            ans.largestRoot = root;
+        } else { // otherwise just return the max of both.
+            // Because if I am not BST, then there is nothing to add in size
+            // So returning the max of both.
+            // ans.size = Math.max(left.size, right.size); // Agar sirf size managa hai
+            // largest BST ka to
+            if (left.size > right.size) {
+                ans.size = left.size;
+                ans.largestRoot = left.largestRoot;
+            } else {
+                ans.size = right.size;
+                ans.largestRoot = right.largestRoot;
+            }
+        }
+
+        return ans;
+    }
+
+    static int largestBst(TreeNode root) {
+        return largestBST(root).size;
     }
 
     public static void main(String[] args) {
