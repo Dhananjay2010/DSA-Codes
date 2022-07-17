@@ -649,7 +649,7 @@ public class l003_Traversal_set {
 
     // ! ==== >>>>> Important point
 
-    //*  This also gets us the ceil an floor value and this only happens in BST, not
+    // This also gets us the ceil an floor value and this only happens in BST, not
     // in normal binary tree.
 
     // Its worst case complexity will be 2logN when the root is the seach node,
