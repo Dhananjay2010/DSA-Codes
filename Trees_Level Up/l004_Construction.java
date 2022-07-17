@@ -57,13 +57,14 @@ public class l004_Construction {
         return construct_BST_from_sorted_array(arr, 0, arr.length - 1);
     }
 
-    // *** Important question {Was not solved in first, second , .... }
+    // * Important question {Was not solved in first, second , .... }
     // Practice this question
 
     // Contruct a BST from DLL
     // https://www.pepcoding.com/resources/data-structures-and-algorithms-in-java-levelup/trees/convert-sorted-dll-to-bst/ojquestion
 
-    // If asked to convert a circular doubly linkedlist to BST, then first berak the
+    // 'If asked to convert a circular doubly linkedlist to BST, then first berak
+    // the
     // circle then proceed the same
     public static TreeNode middle_Node_LinkedList(TreeNode head) {
 
@@ -783,7 +784,7 @@ public class l004_Construction {
         return buildTreePostIn_Hashmap(postorder, 0, postorder.length - 1, inorder, 0, inorder.length - 1, map);
     }
 
-    // <=======Construct Binary Tree From Pre and Post======
+    // b <=======Construct Binary Tree From Pre and Post======>
     // https://leetcode.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal/
     // pre : 8,3,1,6,4,7,10,14,13
     // post: 1,4,7,6,3,13,14,10,8
@@ -841,7 +842,7 @@ public class l004_Construction {
         return constructFromPrePost(preorder, 0, preorder.length - 1, postorder, 0, postorder.length - 1);
     }
 
-    // <=====Serialize and DeserializeBinary Tree =====================>
+    // b <=====Serialize and DeserializeBinary Tree =====================>
     // https://leetcode.com/problems/serialize-and-deserialize-binary-tree/
 
     // Serialize means to create a string so that the tree can be transfered easily.
@@ -849,7 +850,7 @@ public class l004_Construction {
 
     // Complexity wise both the method are same.
 
-    // Method 1 :
+    // b Method 1 :
 
     // To serialize the tree, what we are going to do is create a string of
     // preorder. But with a little twist.
@@ -919,7 +920,7 @@ public class l004_Construction {
         return deserialize_Binary_Tree(arr, index);
     }
 
-    // Method 2:
+    //b Method 2:
 
     // What we did is simple get the levelorder string to serialize the binary tree.
     // Wherever we encountered null, we replaced # with it and got the level order
@@ -1065,7 +1066,7 @@ public class l004_Construction {
         return isBalanced_pair(root).isBal;
     }
 
-    // <==============Given a binary Tree, Find the largest BST subtree=====>
+    // b <==============Given a binary Tree, Find the largest BST subtree=====>
     // https://practice.geeksforgeeks.org/problems/largest-bst/1
 
     // Just have to return the size of largest BST subtree.
@@ -1077,7 +1078,7 @@ public class l004_Construction {
     // aur right BST hain ki nhin.
 
     // Agar mere left aur right BST he nhi hain to mai to BST ho he nhi sakta.
-    // Isiliye, isBST naam ka pair mai rakha hai, aur min max bhi isiliye rakha hai
+    // 'Isiliye, isBST naam ka pair mai rakha hai, aur min max bhi isiliye rakha hai
 
     public static class largestBST_Pair {
         boolean isBST = true;
@@ -1107,10 +1108,11 @@ public class l004_Construction {
             ans.size = left.size + right.size + 1;
             ans.largestRoot = root;
         } else { // otherwise just return the max of both.
-            // Because if I am not BST, then there is nothing to add in size
+            // `Because if I am not BST, then there is nothing to add in size
             // So returning the max of both.
             // ans.size = Math.max(left.size, right.size); // Agar sirf size managa hai
             // largest BST ka to
+
             if (left.size > right.size) {
                 ans.size = left.size;
                 ans.largestRoot = left.largestRoot;
@@ -1126,7 +1128,6 @@ public class l004_Construction {
     static int largestBst(TreeNode root) {
         return largestBST(root).size;
     }
-
 
     public static void main(String[] args) {
 

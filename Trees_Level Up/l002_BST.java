@@ -114,4 +114,8 @@ public class l002_BST {
         // condition true hongi to jo mujhe lca mila hai wo shi mila hai
     }
 
+    //b <================Insert a Node in BST==============>
+
+
+
 }

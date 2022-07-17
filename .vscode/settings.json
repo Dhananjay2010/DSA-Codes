@@ -1,50 +1,114 @@
 {
-    "better-comments.tags": [
-    
-        {
-            "tag": "!",
-            "color": "#FF2D00",
-            "strikethrough": false,
-            "underline": false,
-            "backgroundColor": "transparent",
-            "bold": false,
-            "italic": false
-        },
-        {
-            "tag": "?",
-            "color": "#3498DB",
-            "strikethrough": false,
-            "underline": false,
-            "backgroundColor": "transparent",
-            "bold": false,
-            "italic": false
-        },
-        {
-            "tag": "//",
-            "color": "#474747",
-            "strikethrough": true,
-            "underline": false,
-            "backgroundColor": "transparent",
-            "bold": false,
-            "italic": false
-        },
-        {
-            "tag": "todo",
-            "color": "#FF8C00",
-            "strikethrough": false,
-            "underline": false,
-            "backgroundColor": "transparent",
-            "bold": false,
-            "italic": false
-        },
-        {
-            "tag": "*",
-            "color": "#98C379",
-            "strikethrough": false,
-            "underline": false,
-            "backgroundColor": "transparent",
-            "bold": false,
-            "italic": false
-        }
-    ]
+  "better-comments.tags": [
+    {
+      "tag": "!",
+      "color": "#FF2D00",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "?",
+      "color": "#e38605",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "//",
+      "color": "#474747",
+      "strikethrough": true,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "todo",
+      "color": "#FF8C00",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "*",
+      "color": "#98C379",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "b",
+      "color": "black",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": true,
+      "italic": false
+    },
+    {
+      "tag": "u",
+      "color": "black",
+      "strikethrough": false,
+      "underline": true,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },  
+    {
+      "tag": "i",
+      "color": "black",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": true,
+    },
+    {
+      "tag": "bu",
+      "color": "black",
+      "strikethrough": false,
+      "underline": true,
+      "backgroundColor": "transparent",
+      "bold": true,
+      "italic": false,
+    },
+    {
+      "tag": "ub",
+      "color": "black",
+      "strikethrough": false,
+      "underline": true,
+      "backgroundColor": "transparent",
+      "bold": true,
+      "italic": false,
+    },
+
+    {
+      "tag": "",
+      "color": "#0ca6ed",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false,
+    },
+    {
+      "tag": "@",
+      "color": "#c4cf04",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false,
+    },
+  ],
+  "better-comments.highlightPlainText": true
 }

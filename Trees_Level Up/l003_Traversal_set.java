@@ -542,7 +542,7 @@ public class l003_Traversal_set {
         BST_To_DLL_recursive(root.right);
     }
 
-    // <==== Predecessor and Successor of a Binary Tree=====>
+    // ? <==== Predecessor and Successor of a Binary Tree=====>
     // To do this, just get the inorder traversal of Binary Tree.
 
     // Jab bhi previous ka data value ke equal hoga, to jo curr hoga wo successor ke
@@ -608,7 +608,8 @@ public class l003_Traversal_set {
         }
     }
 
-    // <==== Predecessor and Successsor in BST========>
+    // ? <==== Predecessor and Successsor in BST========>
+    // *https://practice.geeksforgeeks.org/problems/predecessor-and-successor/1
     // Constraint : Time Complexity : T(logN), Space Complexity : O(1)
 
     // Since the constraint is T(logN), we cannot use recursive method. We have to
@@ -655,7 +656,7 @@ public class l003_Traversal_set {
     // Its worst case complexity will be 2logN when the root is the seach node,
     // getLeftMost and getRightMost both has to travel the tree height.
 
-    //? In BIg O terms, it will still be logN
+    // ? In BIg O terms, it will still be logN
 
     public static TreeNode getLeftMost(TreeNode root) {
         if (root == null)
@@ -711,7 +712,7 @@ public class l003_Traversal_set {
 
     // Todo : https://www.geeksforgeeks.org/boundary-traversal-of-binary-tree/
 
-    //  31 may recording
+    // 31 may recording
     // Todo :
     // https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/
     // Todo : https://leetcode.com/problems/binary-tree-cameras/

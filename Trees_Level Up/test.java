@@ -1,54 +1,73 @@
 public class test {
 
-    public static Node getLeftMost(Node root) {
-        if (root == null)
-            return null;
+    public int[] findMode(TreeNode root) {
 
-        Node curr = root;
-        while (curr.left != null) {
-            curr = curr.left;
+        if (root == null) {
+            return new int[0];
         }
 
-        return curr;
-    }
-
-    public static Node getRightMost(Node root) {
-        if (root == null)
-            return null;
-
-        Node curr = root;
-
-        while (curr.right != null) {
-            curr = curr.right;
-        }
-
-        return curr;
-    }
-
-    public static void pre_succ_in_BST(Node root, Node key) {
-
-        Node curr = root;
-        Node pred = null;
-        Node succ = null;
+        ArrayList<Integer> ans = new ArrayList<>();
+        int currentCount = 0;
+        int maxCount = 0;
+        int prev = -(int) 1e9;
+        TreeNode curr = root;
         while (curr != null) {
 
-            if (curr == key) {
-
-                Node currKeRightKaLeftMost = getLeftMost(curr.right);
-                succ = currKeRightKaLeftMost != null ? currKeRightKaLeftMost : succ;
-
-                Node currKeLeftKaRightMost = getRightMost(curr.left);
-                pred = currKeLeftKaRightMost != null ? currKeLeftKaRightMost
-                        : pred;
-            } else if (curr.data < key.data) {
-                pred = curr;
+            TreeNode left = curr.left;
+            if (left == null) {
+                // print;
+                if (prev != -(int) 1e9 && prev != curr.val) {
+                    if (currentCount == maxCount) {
+                        ans.add(prev);
+                    } else if (currentCount > maxCount) {
+                        maxCount = currentCount;
+                        ans.clear();
+                        ans.add(prev);
+                    }
+                    currentCount = 0;
+                }
+                currentCount++;
+                prev = curr.val;
                 curr = curr.right;
-
             } else {
-                succ = curr;
-                curr = curr.left;
+
+                TreeNode currKeLeftKaRightMost = getRightMost(left, curr);
+
+                if (currKeLeftKaRightMost.right == null) {
+                    currKeLeftKaRightMost.right = curr;
+                    curr = curr.left;
+                } else {
+                    currKeLeftKaRightMost.right = null;
+                    if (prev != -(int) 1e9 && prev != curr.val) {
+                        if (currentCount == maxCount) {
+                            ans.add(prev);
+                        } else if (currentCount > maxCount) {
+                            maxCount = currentCount;
+                            ans.clear();
+                            ans.add(prev);
+                        }
+                        currentCount = 0;
+                    }
+                    curr = curr.right;
+                }
             }
         }
+
+        if (currentCount == maxCount) {
+            ans.add(prev);
+        } else if (currentCount > maxCount) {
+            maxCount = currentCount;
+            ans.clear();
+            ans.add(prev);
+        }
+
+        int[] arr = new int[ans.size()];
+
+        for (int i = 0; i < ans.size(); i++) {
+            arr[i] = ans.get(i);
+        }
+
+        return arr;
     }
 
 }
