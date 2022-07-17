@@ -1127,63 +1127,6 @@ public class l004_Construction {
         return largestBST(root).size;
     }
 
-    // <==== Predecessor and Successor of a Binary Tree=====>
-    // To do this, just get the inorder traversal of Binary Tree.
-
-    // Jab bhi previous ka data value ke equal hoga, to jo curr hoga wo successor ke
-    // equal hoga.
-
-    // Aur jab curr ki value given data ke equal hogi, to us samay jo prev hoga whi
-    // predecessor ke equla hoga
-
-    // Bas ye figure kiya dry run se.
-
-    // curr.right nhi hoga successor ke equal. Dhyan rakhna. Tune galat kiya tha.
-
-    public static TreeNode rightMostElement(TreeNode left, TreeNode curr) {
-
-        while (left.right != null && curr != left.right) {
-            left = left.right;
-        }
-
-        return left;
-    }
-
-    public static void Morris_Traversal_Pre_Succ(TreeNode root, TreeNode value) {
-
-        TreeNode curr = root;
-        TreeNode prev = null, successor = null;
-
-        while (curr != null) {
-
-            TreeNode left = curr.left;
-            if (left == null) {
-                // print;
-                if (prev == value) {
-                    successor = curr;
-                    break;
-                }
-                prev = curr;
-                curr = curr.right;
-            } else {
-                TreeNode currKeLeftKaRightMost = rightMostElement(left, curr);
-
-                if (currKeLeftKaRightMost.right == null) {
-                    currKeLeftKaRightMost.right = curr; // Thread creation
-                    curr = curr.left;
-                } else {
-                    currKeLeftKaRightMost.right = null; // thread destroy
-                    if (prev == value) {
-                        successor = curr;
-                        break;
-                    }
-                    prev = curr;
-                    // print;
-                    curr = curr.right;
-                }
-            }
-        }
-    }
 
     public static void main(String[] args) {
 

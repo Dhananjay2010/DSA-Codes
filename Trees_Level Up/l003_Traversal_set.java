@@ -609,27 +609,113 @@ public class l003_Traversal_set {
     }
 
     // <==== Predecessor and Successsor in BST========>
-    // Constraint : Time Complexity : T(N), Space Complexity : O(1)
+    // Constraint : Time Complexity : T(logN), Space Complexity : O(1)
 
-    // Since the constraint is T(N), we cannot use recursive method.
+    // Since the constraint is T(logN), we cannot use recursive method. We have to
+    // use iterative method.
 
-    public static void pre_succ_in_BST(TreeNode root, TreeNode key) {
+    // If not given time constraint, use the above recursive method. It is easy.
+
+    // Issue will be three test cases.
+    // 1. When the node we are finding has both child.
+    // 2 When the node we are finding has only right child.
+    // 3. When the node we are finding has only left child.
+
+    // For cases 1 and 2, the successor will be node ke right ka left most.
+    // The problem arises for the 3rd test case. (Node ke pass right he nhi hai).
+
+    // For Test case : 8,3,10,1,6,null,14,null,null,4,7,13,null (Level order of a
+    // test case to get a tree)
+
+    // If my find node is 10, then 8 can never be the successor.
+    // If my find node is 14, 10 can never be the successor
+    // If my find node is 13, then 14 can be a successor.
+
+    // Through this we found that whenever we go left, we have set our successor
+    // before doing that.
+
+    // Now for predecessor
+    // If my find node is 10, then 8 can be the predecessor.
+    // If my find node is 14, 10 can be the predecessor
+    // If my find node is 13, then 14 can never be a predecessor.
+
+    // So whenever we go right, we set our predecessor.
+
+    // If current ke right ka left most present when we find our data, then that is
+    // our successor.
+
+    // Similarly, current ke left ka rightmost is present when we find our data,
+    // then that is our predecessor.
+
+    // ! ==== >>>>> Important point
+
+    //*  This also gets us the ceil an floor value and this only happens in BST, not
+    // in normal binary tree.
+
+    // Its worst case complexity will be 2logN when the root is the seach node,
+    // getLeftMost and getRightMost both has to travel the tree height.
+
+    //? In BIg O terms, it will still be logN
+
+    public static TreeNode getLeftMost(TreeNode root) {
+        if (root == null)
+            return null;
 
         TreeNode curr = root;
-        TreeNode pre=null;
-        TreeNode succ=null;
+        while (curr.left != null) {
+            curr = curr.left;
+        }
+
+        return curr;
+    }
+
+    public static TreeNode getRightMost(TreeNode root) {
+        if (root == null)
+            return null;
+
+        TreeNode curr = root;
+
+        while (curr.right != null) {
+            curr = curr.right;
+        }
+
+        return curr;
+    }
+
+    public static void pre_succ_in_BST_And_Ceil_Floor(TreeNode root, TreeNode key) {
+
+        TreeNode curr = root;
+        TreeNode pred = null;
+        TreeNode succ = null;
         while (curr != null) {
-            
-            if()
+
+            if (curr == key) {
+
+                TreeNode currKeRightKaLeftMost = getLeftMost(curr.right);
+                succ = currKeRightKaLeftMost != null ? currKeRightKaLeftMost : succ;
+
+                TreeNode currKeLeftKaRightMost = getRightMost(curr.left);
+                pred = currKeLeftKaRightMost != null ? currKeLeftKaRightMost
+                        : pred;
+                break;
+            } else if (curr.val < key.val) {
+                pred = curr;
+                curr = curr.right;
+
+            } else {
+                succ = curr;
+                curr = curr.left;
+            }
         }
     }
 
-    // https://www.geeksforgeeks.org/boundary-traversal-of-binary-tree/
+    // Todo : https://www.geeksforgeeks.org/boundary-traversal-of-binary-tree/
 
-    // 31 may recording
+    //  31 may recording
+    // Todo :
     // https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/
-    // https://leetcode.com/problems/binary-tree-cameras/
-    // https://practice.geeksforgeeks.org/problems/clone-a-binary-tree/1/
-    // https://leetcode.com/problems/delete-node-in-a-bst/
-    // https://leetcode.com/problems/sum-of-distances-in-tree/
+    // Todo : https://leetcode.com/problems/binary-tree-cameras/
+    // Todo : https://practice.geeksforgeeks.org/problems/clone-a-binary-tree/1/
+    // Todo : https://leetcode.com/problems/delete-node-in-a-bst/
+    // Todo : https://leetcode.com/problems/sum-of-distances-in-tree/
 }
