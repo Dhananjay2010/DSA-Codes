@@ -117,7 +117,7 @@ public class l002_BST {
     // ! Anytime you want to do insertion and deletion in BST, always use recursion.
     // ! Never go for iterative method.
 
-    // b <================Insert a Node in BST====================>
+    // b <================Insert a Node in BST(Recursive)====================>
 
     // `Simple recursion use kiya aur jahan wo element probably mil sakta tha, wahan
     // jake use place kar diya.
@@ -138,7 +138,7 @@ public class l002_BST {
         return root;
     }
 
-    // b <=======================Delete a Node in BST================>
+    // b <=======================Delete a Node in BST(Recursive)================>
 
     // Here there can be 4 conditions:
     // 1. If the node we want to delete has 2 childs.
@@ -327,7 +327,103 @@ public class l002_BST {
         }
     }
 
+    // b <================ Insert a Node in BST(Iterative Method) ================>
 
-    // ?  Home work : insert node and delete node -> T : O(LogN), S : O(1) (Iterative Solution)
+    // Same logic as recursive
+    // Humesha node ko leaf node ki tarah he insert karna hai
+
+    public TreeNode insertIntoBST_iterative(TreeNode root, int val) {
+
+        if (root == null)
+            return new TreeNode(val); // ? Agar root empty haoi to single node return karna hai
+
+        TreeNode curr = root;
+
+        while (curr != null) {
+            if (val > curr.val) {
+                if (curr.right == null) {
+                    curr.right = new TreeNode(val);
+                    break;
+                }
+                curr = curr.right;
+            } else {
+                if (curr.left == null) {
+                    curr.left = new TreeNode(val);
+                    break;
+                }
+                curr = curr.left;
+            }
+        }
+        return root;
+    }
+
+    // b <================ Delete a Node in BST(Iterative Method) ================>
+
+    // ` Here the logic is same as recurision one. Just have maintained a parent to
+    // know wherer to attach the rest of the node of the tree.
+
+    public static TreeNode leftMost_iterative(TreeNode root) {
+        if (root == null)
+            return null;
+
+        while (root.left != null) {
+            root = root.left;
+        }
+
+        return root;
+    }
+
+    public TreeNode deleteNode_iterative(TreeNode root, int key) {
+
+        if (root == null) {
+            return null;
+        }
+
+        TreeNode curr = root;
+        TreeNode parent = null;
+
+        while (curr != null) {
+            if (key > curr.val) {
+                parent = curr;
+                curr = curr.right;
+            } else if (key < curr.val) {
+                parent = curr;
+                curr = curr.left;
+            } else if (curr.val == key) {
+                TreeNode nodeToAttach = null;
+                int currentValue = curr.val;
+                if (curr.left == null || curr.right == null) { // Handling both leaf nodes as well as single parent
+                                                               // condition
+                    nodeToAttach = curr.left == null ? curr.right : curr.left;
+                    curr.left = curr.right = null;
+                    if (parent == null) { // Agar manlo koi single node ka tree hai aur usi node ko remove karne ko bola
+                                          // to uska to parent koi hoga he nhi. ex =[8] and 8 is told to delete
+
+                        // Same goes for case like [8,7,null] and 8 is told to delete so no parent
+                        // Same goes for case like [8,null,7] and 8 is told to delete
+                        return nodeToAttach;
+                    }
+                    if (parent.val < currentValue) {
+                        parent.right = nodeToAttach;
+                    } else {
+                        parent.left = nodeToAttach;
+                    }
+                } else {
+
+                    TreeNode currKeRightKaLeftMost = leftMost_iterative(curr.right);
+                    curr.val = currKeRightKaLeftMost.val;
+                    curr.right = deleteNode_iterative(curr.right, curr.val);
+                }
+
+                break;
+
+            }
+        }
+
+        return root;
+    }   
+
+    // ? Home work : insert node and delete node -> T : O(LogN), S : O(1) (Iterative
+    // Solution)
 
 }
