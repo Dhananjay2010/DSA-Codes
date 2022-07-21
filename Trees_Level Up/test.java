@@ -1,28 +1,45 @@
+import java.util.ArrayList;
+import java.util.LinkedList;
+
 public class test {
 
+    public void diagonal(Node root, int diagonalLevel, HashMap<Integer, ArrayList<Integer>> map) {
+        // add your code here.
 
-    static int maxLevel = -1;
-
-    public static void leftView_dfs(Node root, int level, ArrayList<Integer> ans) {
-
-        if (root == null)
+        if (root == null) {
             return;
-
-        if (level > maxLevel) {
-            ans.add(root.data);
-            maxLevel = level;
         }
 
-        leftView_dfs(root.left, level + 1, ans);
-        leftView_dfs(root.right, level + 1, ans);
+        if (!map.containsKey(diagonalLevel)) {
+            map.put(diagonalLevel, new ArrayList<>());
+        }
+
+        map.get(diagonalLevel).add(root.data);
+
+        diagonal(root.left, diagonalLevel + 1, map);
+        diagonal(root.right, diagonalLevel, map);
 
     }
 
-    ArrayList<Integer> leftView_dfs(Node root) {
-        // Your code here
+    public ArrayList<Integer> diagonal(Node root) {
 
-        ArrayList<Integer> ans = new ArrayList<>();
-        leftView_dfs(root, 0, ans);
+        if (root == null) {
+            return new ArrayList<>();
+        }
+
+        HashMap<Integer, ArrayList<Integer>> map = new HashMap<>();
+
+        diagonal(root, 0, map);
+        ArrayList<Integer> myans = new ArrayList<>();
+
+        for (int i = 0; i < map.size(); i++) {
+            for (int e : map.get(i)) {
+                myans.add(e);
+            }
+        }
+
+        return myans;
+        // add your code here.
     }
 
 }

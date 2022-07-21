@@ -64,15 +64,6 @@
       "italic": false
     },  
     {
-      "tag": "i",
-      "color": "black",
-      "strikethrough": false,
-      "underline": false,
-      "backgroundColor": "transparent",
-      "bold": false,
-      "italic": true,
-    },
-    {
       "tag": "bu",
       "color": "black",
       "strikethrough": false,
@@ -110,5 +101,6 @@
       "italic": false,
     },
   ],
-  "better-comments.highlightPlainText": true
+  "better-comments.highlightPlainText": true,
+  "better-comments.multilineComments": true,
 }

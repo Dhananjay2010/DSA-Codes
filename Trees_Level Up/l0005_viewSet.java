@@ -1,6 +1,8 @@
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class l0005_viewSet {
 
@@ -246,10 +248,7 @@ public class l0005_viewSet {
     // ! Important Point to note : See the one note section
 
     // ? If told to consider the 45° of tree gometry, then the left and right view
-    // ? might change. 
-
-
-    
+    // ? might change.
 
     // b <=================Vertical Order of Binary Tree =================>
 
@@ -263,6 +262,559 @@ public class l0005_viewSet {
     // ? Left child will be at an angle of -45° and right child will be at an angle
     // ? of +45°. It is like plotting the tree in graph.
 
+    // To do this, first we have to calculate the width of shadow of the tree.
+
+    // Shadow means that if at the top of the tree there is light, so we have to
+    // calculate the widht of the shadow that will be formed at the bottom
+
+    // width[0] indicates the max width on left side {in -ve}
+    // widht[1] indicatest the max width on right side { in +ve}
+
+    // So the total width will be width[1] - width[0] + 1
+    // So we are going to create Arraylist with this total width size.
+
+    // Since each index represent the vertical order, so we will initialize an
+    // arraylist in each index to store the nodes value in each level
+
+    // After we have calculated the width of shadow of the tree, what we will do is
+    // apply normal bfs.
+
+    // So basically what we are going to do is insert the verticalPair in the queue.
+
+    // Vertical pair has basically a node and vl.
+    // vl is for the storing the vertical level of the current node.
+
+    // ! Important point to note :
+
+    // We will be assigning the root node with the level of -width[0] since it is
+    // the maximum that we can go to the left. Therefore -width[0] will be a +ve
+    // value.
+
+    // Ye isiliye kiya kyunki arraylist mai -ve index nhi hote hain aur hume
+    // leftmost vertical level 0 mile
+
+    // ! Important point :
+
+    // Don't try to solve vertical order traversal with dfs(recursion).
+    // ? It fails for following test case.
+
+    // Test case : [5,7,6,null,8,null,null,null,9]
+
+    // The actual vertical order for this should be :
+
+    // 0 : 7
+    // 1 : 5,8
+    // 2 : 6,9
+
+    // ` But in dfs, we have our left call first and then the second call, we get
+    // the order as
+
+    // 0 : 7
+    // 1 : 5,8
+    // 2 : 9, 6
+
+    // The second level comes wrong due to this.
+
+    // ? Therefore we don't try to solve it with dfs. We can solve it but more and
+    // ? more conditions have to be checked and that is of no use.
+
+    public static void widthOfShadow(TreeNode root, int verticalLevel, int[] width) {
+
+        if (root == null) {
+            return;
+        }
+
+        if (verticalLevel < 0 && verticalLevel < width[0]) {
+            width[0] = verticalLevel;
+        }
+        if (verticalLevel > 0 && verticalLevel > width[1]) {
+            width[1] = verticalLevel;
+        }
+
+        widthOfShadow(root.left, verticalLevel - 1, width);
+        widthOfShadow(root.right, verticalLevel + 1, width);
+    }
+
+    public static class verticalPair {
+        int vl = 0;
+        TreeNode node = null;
+
+        verticalPair(TreeNode node, int vl) {
+            this(node);
+            this.vl = vl;
+        }
+
+        verticalPair(TreeNode node) {
+            this.node = node;
+        }
+    }
+
+    public List<List<Integer>> verticalTraversal(TreeNode root) {
+
+        if (root == null) {
+            return new ArrayList<>();
+        }
+
+        int[] width = new int[] { 0, 0 };
+
+        widthOfShadow(root, 0, width);
+
+        int totalWidth = width[1] - width[0] + 1;
+        List<List<Integer>> ans = new ArrayList<>();
+        for (int i = 0; i < totalWidth; i++) {
+            ans.add(new ArrayList<>());
+        }
+
+        LinkedList<verticalPair> que = new LinkedList<>();
+        que.addLast(new verticalPair(root, -width[0]));
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            while (size-- > 0) {
+                verticalPair rn = que.removeFirst();
+                TreeNode node = rn.node;
+                int vl = rn.vl;
+
+                ans.get(rn.vl).add(rn.node.val);
+
+                if (node.left != null) {
+                    que.addLast(new verticalPair(node.left, vl - 1)); // left wala node insert kiya to vertical level se
+                                                                      // -1 kiya
+                }
+                if (node.right != null) {
+                    que.addLast(new verticalPair(node.right, vl + 1));// right wala node insert kiya to vertical level
+                                                                      // se +1 kiya
+                }
+            }
+        }
+
+        return ans;
+
+    }
+
+    // ? Bhaiya code : Code written more beautifully
+
+    // {min,max}
+    public static void widthOfShadow_bhaiya(TreeNode root, int vl, int[] minMax) {
+        if (root == null)
+            return;
+
+        minMax[0] = Math.min(minMax[0], vl);
+        minMax[1] = Math.max(minMax[1], vl);
+
+        widthOfShadow_bhaiya(root.left, vl - 1, minMax);
+        widthOfShadow_bhaiya(root.right, vl + 1, minMax);
+    }
+
+    public static class vpair {
+        TreeNode node = null;
+        int vl = 0;
+
+        vpair(TreeNode node, int vl) {
+            this.node = node;
+            this.vl = vl;
+        }
+    }
+
+    public static ArrayList<ArrayList<Integer>> verticalOrder(TreeNode root) {
+        ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+        if (root == null)
+            return ans;
+
+        int[] minMax = new int[2];
+        widthOfShadow(root, 0, minMax);
+        int width = minMax[1] - minMax[0] + 1;
+        for (int i = 0; i < width; i++)
+            ans.add(new ArrayList<>());
+
+        LinkedList<vpair> que = new LinkedList<>();
+        que.addLast(new vpair(root, Math.abs(minMax[0])));
+
+        while (que.size() != 0) {
+            int size = que.size();
+            while (size-- > 0) {
+                vpair p = que.removeFirst();
+                TreeNode node = p.node;
+                int vl = p.vl;
+
+                ans.get(vl).add(node.val);
+                if (node.left != null)
+                    que.addLast(new vpair(node.left, vl - 1));
+                if (node.right != null)
+                    que.addLast(new vpair(node.right, vl + 1));
+            }
+        }
+
+        return ans;
+    }
+
+    // b <==================== Bottom View of Tree =========================>
+    // https://practice.geeksforgeeks.org/problems/bottom-view-of-binary-tree/1
+
+    // ? Basically the bottom view is just the last element in the vertical order of
+    // ? every column.
+
+    // So basically updating the value in the array for each vertical level will
+    // give us the bottom view.
+
+    // So we did the same thing as done in vertical order above.
+
+    // Considering the test case :
+    // [8,3,10,1,6,11,14,null,null,4,7,15,16,13,null]
+
+    // Here we have considered the last node in level order(for same vertical level)
+    // to be the part of bottom view
+
+    // ? In the above test case, [7,16,13] are in the bottom most of vertical level
+    // ? 3. So we have taken 13 as a part of bottom view since the it comes last in
+    // ? the level order. Hence we have solved the problem taking this into
+    // ? consideration.
+
+    // ! Important point to Note : Solved below the normal botttom view
+
+    // Conditionally if asked that we need all the nodes occuring in the bottom most
+    // of a vertical level, so what we need to do now is keep the horizontal level
+    // also with us.
+
+    // So now what the question want is that if [7,16,13] are in the bottom most of
+    // vertical level 3, then all the three elements 7, 16,13 should be stored in
+    // the arraylist. Not just one element.
+
+    // So how to keep track of previous horizontal level???
+
+    // One Way would be to store in the vertical pair class that we are using. But
+    // ` it will take space. So what we should do ??
+
+    // ` Best way would be to maintain an array of size total Width and update the
+    // array when adding the value to the arraylist.
+
+    // Taking an example of vertical level 3 in above tree.
+    // We will have array of array list
+
+    // Firstly we will insert 10 in the array list index 3. Now we will update the
+    // horizontal array 3rd index with 1(indicating the horizontal level)
+
+    // Now 7 will come first due to level order for the sam vertcal level3.
+    // Now because 7 has greater horizontal level, we are going to remove 10 by
+    // clearing the arraylist and add 7 to the arraylist. We will also update the
+    // horozontal level array with the current horizontal level for vertical level
+    // index.
+
+    // Now 16 will come and since it has horizontal level same as the previous, we
+    // will add it to the same list.
+
+    // Hence the logic continues.
+
+    // ! Basically what we need is three variables : Node, vertical Level ,
+    // ! Horizontal level to solve any type of problem in bottom view.
+
+    // We can be asked to just to have max of [7,16,13] for the bottom view,
+    // Anything can be solved using the 3 variables.
+
+    public static void shadowOfTree(TreeNode root, int verticalLevel, int[] width) {
+
+        if (root == null) {
+            return;
+        }
+
+        width[0] = Math.min(width[0], verticalLevel);
+        width[1] = Math.max(width[1], verticalLevel);
+
+        shadowOfTree(root.left, verticalLevel - 1, width);
+        shadowOfTree(root.right, verticalLevel + 1, width);
+    }
+
+    public static class bottomVerticalPair {
+
+        int vl = 0;
+        TreeNode node = null;
+
+        bottomVerticalPair(TreeNode node, int vl) {
+            this.node = node;
+            this.vl = vl;
+        }
+    }
+
+    public ArrayList<Integer> bottomView(TreeNode root) {
+
+        if (root == null) {
+            return new ArrayList<>();
+        }
+
+        int[] width = new int[] { 0, 0 };
+        shadowOfTree(root, 0, width);
+
+        int totalWidth = width[1] - width[0] + 1;
+        ArrayList<Integer> ans = new ArrayList<>();
+        for (int i = 0; i < totalWidth; i++) {
+            ans.add(null);
+        }
+
+        LinkedList<bottomVerticalPair> que = new LinkedList<>();
+        que.addLast(new bottomVerticalPair(root, Math.abs(width[0])));
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            while (size-- > 0) {
+                bottomVerticalPair rn = que.removeFirst();
+                TreeNode node = rn.node;
+                int vl = rn.vl;
+
+                ans.set(vl, node.val); // Just updating the value in a particular level.
+                if (node.left != null) {
+                    que.addLast(new bottomVerticalPair(node.left, vl - 1));
+                }
+                if (node.right != null) {
+                    que.addLast(new bottomVerticalPair(node.right, vl + 1));
+                }
+
+            }
+        }
+
+        return ans;
+        // Code here
+    }
+
+    // ? Bottom View with all value at same level
+
+    public ArrayList<ArrayList<Integer>> bottomView_allValue_at_horizontal_level(TreeNode root) {
+
+        if (root == null) {
+            return new ArrayList<>();
+        }
+
+        int[] width = new int[2];
+
+        shadowOfTree(root, 0, width);
+
+        int totalWidth = width[1] - width[0] + 1;
+
+        ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+
+        for (int i = 0; i < totalWidth; i++) {
+            ans.add(new ArrayList<>());
+        }
+
+        int[] hLevel = new int[totalWidth];
+        Arrays.fill(hLevel, -1);
+
+        LinkedList<verticalPair> que = new LinkedList<>();
+        que.addLast(new verticalPair(root, Math.abs(width[0])));
+
+        int level = 0;
+        while (que.size() != 0) {
+            int size = que.size();
+
+            while (size-- > 0) {
+
+                verticalPair rn = que.removeFirst();
+                TreeNode node = rn.node;
+                int vl = rn.vl;
+
+                if (hLevel[vl] < level) {
+                    ans.get(vl).clear();
+                    hLevel[vl] = level;
+                }
+                ans.get(vl).add(node.val);
+
+                if (node.left != null) {
+                    que.addLast(new verticalPair(node.left, vl - 1));
+                }
+
+                if (node.right != null) {
+                    que.addLast(new verticalPair(node.right, vl + 1));
+                }
+
+            }
+
+            level++;
+        }
+
+        return ans;
+    }
+
+    // b<==============================Top View ==========================>
+    // https://practice.geeksforgeeks.org/problems/top-view-of-binary-tree/1
+
+    // ? The logic is simple. Just getting the first element for each column in
+    // ? vertical order traversal.
+
+    // Just dry run and you will get it.
+
+    public static class topVerticalPair {
+        int vl = 0;
+        TreeNode node = null;
+
+        topVerticalPair(TreeNode node, int vl) {
+            this.node = node;
+            this.vl = vl;
+        }
+    }
+
+    public static ArrayList<Integer> topView(TreeNode root) {
+
+        if (root == null) {
+            return new ArrayList<>();
+        }
+
+        int[] width = new int[] { 0, 0 };
+        shadowOfTree(root, 0, width);
+
+        int totalWidth = width[1] - width[0] + 1;
+
+        ArrayList<Integer> ans = new ArrayList<>();
+        for (int i = 0; i < totalWidth; i++) {
+            ans.add(null);
+        }
+
+        LinkedList<topVerticalPair> que = new LinkedList<>();
+        que.addLast(new topVerticalPair(root, Math.abs(width[0])));
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            while (size-- > 0) {
+                topVerticalPair rn = que.removeFirst();
+                TreeNode node = rn.node;
+                int vl = rn.vl;
+
+                if (ans.get(vl) == null) {
+                    ans.set(vl, node.val);
+                }
+
+                if (node.left != null) {
+                    que.addLast(new topVerticalPair(node.left, vl - 1));
+                }
+                if (node.right != null) {
+                    que.addLast(new topVerticalPair(node.right, vl + 1));
+                }
+            }
+        }
+
+        return ans;
+
+    }
+
+    // b <========================Vertical Sum ====================>
+
+    /*
+     * Given a Binary Tree, find vertical sum of the nodes that are in same vertical
+     * line. Print all sums through different vertical lines starting from left-most
+     * vertical line to right-most vertical line.
+     */
+
+    // ? Simple hai .Har vertical column ke sare elements ka sum karke arraylist mai
+    // ? store karana hai.
+
+    // Isko recursion se bhi kar sakte hai kyunki isme order matter nhi karta
+
+    public ArrayList<Integer> verticalSum(TreeNode root) {
+
+        if (root == null) {
+            return new ArrayList<>();
+        }
+
+        int[] width = new int[2];
+
+        shadowOfTree(root, 0, width);
+
+        int totalWidth = width[1] - width[0] + 1;
+        ArrayList<Integer> ans = new ArrayList<>();
+
+        for (int i = 0; i < totalWidth; i++) {
+            ans.add(0); // Initiatlizing the array list with 0.
+        }
+        LinkedList<verticalPair> que = new LinkedList<>();
+        que.addLast(new verticalPair(root, Math.abs(width[0])));
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            while (size-- > 0) {
+                verticalPair rn = que.removeFirst();
+                TreeNode node = rn.node;
+                int vl = rn.vl;
+
+                ans.set(vl, ans.get(vl) + node.val);
+
+                if (node.left != null) {
+                    que.addLast(new verticalPair(node.left, vl - 1));
+                }
+
+                if (node.right != null) {
+                    que.addLast(new verticalPair(node.right, vl + 1));
+                }
+            }
+        }
+
+        return ans;
+        // add your code here
+    }
+
+    // b<=======================Diagonal Order of Tree ================>
+    // https://practice.geeksforgeeks.org/problems/diagonal-traversal-of-binary-tree/1
+
+    // ? Below is your method that was intuitive to you.
+    // The logic is simple. As you move to your left, increase the diagonal level by
+    // 1 and as you move to your right, the diagonal level remains same because it
+    // is part of same diagonal.
+
+    // HashMap is used here in dfs because we don't know that how many diagonals
+    // will be there.
+
+    // ! Important note :
+
+    // ? The biggest mistake you did was to consider that width of shadow of tree
+    // ? width[0] will be equal to the number of diagonals. This is not true.
+
+    public void diagonal(TreeNode root, int diagonalLevel, HashMap<Integer, ArrayList<Integer>> map) {
+        // add your code here.
+
+        if (root == null) {
+            return;
+        }
+
+        if (!map.containsKey(diagonalLevel)) {
+            map.put(diagonalLevel, new ArrayList<>());
+        }
+
+        map.get(diagonalLevel).add(root.val);
+
+        diagonal(root.left, diagonalLevel + 1, map);
+        diagonal(root.right, diagonalLevel, map);
+
+    }
+
+    public ArrayList<Integer> diagonal(TreeNode root) {
+
+        if (root == null) {
+            return new ArrayList<>();
+        }
+
+        HashMap<Integer, ArrayList<Integer>> map = new HashMap<>();
+
+        diagonal(root, 0, map);
+        ArrayList<Integer> myans = new ArrayList<>();
+
+        for (int i = 0; i < map.size(); i++) {
+            for (int e : map.get(i)) {
+                myans.add(e);
+            }
+        }
+
+        return myans;
+        // add your code here.
+    }
+
+    // ? Using the BFS method to solve it.
+
+    // b<======================= Diagonal order anticlockwise ==================>
+
+    // b <=====================Diagonal Sum ========================>
+
+    // b<=============Vertical Order ii Leetcode =============>
     public static void main(String[] args) {
 
     }
