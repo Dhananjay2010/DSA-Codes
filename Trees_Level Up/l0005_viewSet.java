@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 
 public class l0005_viewSet {
 
@@ -810,11 +811,306 @@ public class l0005_viewSet {
 
     // ? Using the BFS method to solve it.
 
-    // b<======================= Diagonal order anticlockwise ==================>
+    // So what we did was simple.
+
+    // Considering the test case :
+    // [8,3,10,1,6,11,14,null,null,4,7,15,16,13,null]
+
+    // The answer should look like this for each diagonal
+
+    // 1: 8,10,14
+    // 2: 3,6,7,11,16,13
+    // 3: 1,4,15
+
+    // So what we did was we are first going to insert the root node in the queue.
+    // Then we will follow the same process of bfs but with a little twist.
+
+    // When we removed 8, we are going to the right until we find null and are going
+    // to insert left of every node in the queue we find while going right. Also
+    // remember to insert the node val in an arraylist.
+
+    // Now when we traverse from 8 ,10, 14, We have inserted 3 , 11 and 13 in the
+    // queue.
+
+    // 8 10 14 form the first diagonal.
+
+    // Now comes 3, we remove it and move to the right and adding left if exist and
+    // the node value to arraylist. Same goes for values 11 and 13.
+
+    // Hence the second diagonal is formed
+    // They contain value 3 6 7 11 16 13
+
+    // Always remember the order is important
+
+    // First we exhaust the right of 3, then 11 and at last of 13.
+
+    // So my size -- while loop will complete one whole diagonal each time it runs.
+
+    // Therefore the story continues like this ....
+
+    public ArrayList<Integer> diagonal_bfs(TreeNode root) {
+
+        ArrayList<Integer> ans = new ArrayList<>();
+
+        if (root == null) {
+            return ans;
+        }
+
+        ArrayList<ArrayList<Integer>> myans = new ArrayList<>();
+        LinkedList<TreeNode> que = new LinkedList<>();
+        que.addLast(root);
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            ArrayList<Integer> diagonal = new ArrayList<>();
+            while (size-- > 0) { // Every time this runs, it will complete my one whole diagonal
+                TreeNode rn = que.removeFirst();
+
+                while (rn != null) {
+                    diagonal.add(rn.val);
+                    if (rn.left != null) {
+                        que.add(rn.left);
+                    }
+                    rn = rn.right;
+                }
+            }
+
+            myans.add(diagonal);
+
+        }
+
+        // myans has all the diagonals in form of arraylist
+
+        for (int i = 0; i < myans.size(); i++) {
+            for (int e : myans.get(i)) {
+                ans.add(e);
+            }
+        }
+
+        return ans; // Just for geeks ans;
+    }
 
     // b <=====================Diagonal Sum ========================>
+    // https://practice.geeksforgeeks.org/problems/diagonal-sum-in-binary-tree/1
+
+    // Sum of the diagonals of the tree.
+
+    // ? What we did is traverse the diagonal order and sum its element
+
+    public static ArrayList<Integer> diagonalSum(TreeNode root) {
+
+        ArrayList<Integer> ans = new ArrayList<>();
+
+        if (root == null) {
+            return ans;
+        }
+
+        LinkedList<TreeNode> que = new LinkedList<>();
+        que.addLast(root);
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            int sum = 0;
+            while (size-- > 0) {
+                TreeNode rn = que.removeFirst();
+
+                while (rn != null) {
+                    sum += rn.val;
+                    if (rn.left != null) {
+                        que.add(rn.left);
+
+                    }
+                    rn = rn.right;
+                }
+            }
+
+            ans.add(sum);
+        }
+
+        return ans;
+    }
+
+    // b<======================= Diagonal order anticlockwise ==================>
+
+    // Diagonal order clockwise is the above diagonal order done where we have to
+    // consider left to right diagonals
+
+    // ? here we have to consider the right to left diagonal
+
+    // Now the change is in the innermost while loop we will go to the leftmost and
+    // add the right if exist.
+
+    // Everthing remain same as normal diagonal order. Just the above tweak.
+
+    public static ArrayList<ArrayList<Integer>> diagonalOrder(TreeNode root) {
+        ArrayList<ArrayList<Integer>> myans = new ArrayList<>();
+
+        if (root == null) {
+            return myans;
+        }
+
+        LinkedList<TreeNode> que = new LinkedList<>();
+        que.addLast(root);
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            ArrayList<Integer> diagonal = new ArrayList<>();
+            while (size-- > 0) { // Every time this runs, it will complete my one whole diagonal
+                TreeNode rn = que.removeFirst();
+
+                while (rn != null) {
+                    diagonal.add(rn.val);
+                    if (rn.right != null) {
+                        que.add(rn.right);
+                    }
+                    rn = rn.left;
+                }
+            }
+
+            myans.add(diagonal);
+
+        }
+        return myans;
+    }
 
     // b<=============Vertical Order ii Leetcode =============>
+    // https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/
+
+    // ? It is same as the vertical order but with a little twist.
+    // ? If we have multiple nodes that have same horizontal level and same vertical
+    // ? level, then we need them in sorting order for a vertcal
+
+    // Considering the test case :
+    // [8,3,10,1,6,11,14,null,null,4,7,0,16,13,null]
+
+    // The vertical order should be :
+
+    // 0 : 1
+    // 1 : 3,0,4
+    // 2 : 8,6,11
+    // 3 : 10,7,13,16
+    // 4 : 14
+
+    // Taking an example : there were two nodes 4, 0 for horizontal level 3 and
+    // vertical level 1 so they needs to be in sorted order when storing in
+    // arraylist.
+
+    // Normal vertical order will give 4,0 and store in the arraylist.
+
+    // So what do we do for this behaviour ???
+
+    // First thing we do is keep an extra horizontal level in class pair. So we will
+    // `be adding (node/hLevel/vLevel) in the queue.
+
+    // Secondly and most importantly, we will be needing a priority queue.
+
+    // Now applying the same bfs as in normal vertical order and adding/removing
+    // elements from queue.
+
+    // ? but now what will change is the priority that the elements from the queue
+    // ? come out.
+
+    // Since we want it to behave like normal vertical order, therefore we want
+    // nodes with less horizontal level comes out first.
+
+    // And if the horizontal level are same, then the one with less vertical order
+    // comes out first
+
+    // And if horizontal and vertical level both are same, then the node with less
+    // value comes out first giving us the sorted order
+
+    // ! To do all this we have used lambda operator in priority queue.
+
+    // (a,b) -> {some logic to set priority}
+
+    // Decision is always made of first element.i.e a;
+
+    // a-b ==> this - other always gives us the default behaviour.i.e increasing
+
+    // `b-a ==> other - this giver us the opposite of default behaviour. Decreasing
+
+    public static void shadowOfTree_practice_vertical_level_ii(TreeNode root, int verticalLevel, int[] width) {
+
+        if (root == null) {
+            return;
+        }
+
+        width[0] = Math.min(width[0], verticalLevel);
+        width[1] = Math.max(width[1], verticalLevel);
+
+        shadowOfTree_practice_vertical_level_ii(root.left, verticalLevel - 1, width);
+        shadowOfTree_practice_vertical_level_ii(root.right, verticalLevel + 1, width);
+    }
+
+    public static class verticalPair2 {
+
+        TreeNode node = null;
+        int vl = 0;
+        int hl = 0;
+
+        verticalPair2(TreeNode node, int hl, int vl) {
+            this.node = node;
+            this.vl = vl;
+            this.hl = hl;
+        }
+    }
+
+    public List<List<Integer>> verticalTraversal(TreeNode root) {
+
+        List<List<Integer>> ans = new ArrayList<>();
+
+        if (root == null) {
+            return ans;
+        }
+
+        int[] width = new int[2];
+        shadowOfTree_practice_vertical_level_ii(root, 0, width);
+
+        int totalWidth = width[1] - width[0] + 1;
+
+        for (int i = 0; i < totalWidth; i++) {
+            ans.add(new ArrayList<>());
+        }
+
+        PriorityQueue<verticalPair2> que = new PriorityQueue<>((a, b) -> {
+            if (a.hl != b.hl) {
+                return a.hl - b.hl; // this - other == > default behaviour(increasing). pair with less value of hl
+                                    // will come first
+            } else if (a.vl != b.vl) {
+                return a.vl - b.vl;// this - other == > default behaviour(increasing). pair with less value of vl
+                                   // will come first
+            } else {
+                return a.node.val - b.node.val;// this - other == > default behaviour(increasing). pair with less value
+                                               // of node.val will come first out of priority queue
+            }
+        });
+        que.add(new verticalPair2(root, 0, Math.abs(width[0])));
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            while (size-- > 0) {
+                verticalPair2 rn = que.remove();
+                TreeNode node = rn.node;
+                int vl = rn.vl;
+                int hl = rn.hl;
+
+                ans.get(vl).add(node.val);
+                if (node.left != null) {
+                    que.add(new verticalPair2(node.left, hl + 1, vl - 1));
+                }
+                if (node.right != null) {
+                    que.add(new verticalPair2(node.right, hl + 1, vl + 1));
+                }
+
+            }
+        }
+        return ans;
+    }
+
     public static void main(String[] args) {
 
     }

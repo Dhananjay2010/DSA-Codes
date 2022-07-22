@@ -3,43 +3,38 @@ import java.util.LinkedList;
 
 public class test {
 
-    public void diagonal(Node root, int diagonalLevel, HashMap<Integer, ArrayList<Integer>> map) {
-        // add your code here.
+    public static ArrayList<Integer> diagonalSum(Node root) {
+
+        ArrayList<Integer> ans = new ArrayList<>();
 
         if (root == null) {
-            return;
+            return ans;
         }
 
-        if (!map.containsKey(diagonalLevel)) {
-            map.put(diagonalLevel, new ArrayList<>());
-        }
+        LinkedList<Node> que = new LinkedList<>();
+        que.addLast(root);
 
-        map.get(diagonalLevel).add(root.data);
+        while (que.size() != 0) {
+            int size = que.size();
 
-        diagonal(root.left, diagonalLevel + 1, map);
-        diagonal(root.right, diagonalLevel, map);
+            int sum = 0;
+            while (size-- > 0) {
+                Node rn = que.removeFirst();
 
-    }
+                while (rn != null) {
+                    sum += rn.data;
+                    if (rn.left != null) {
+                        que.add(rn.left);
 
-    public ArrayList<Integer> diagonal(Node root) {
-
-        if (root == null) {
-            return new ArrayList<>();
-        }
-
-        HashMap<Integer, ArrayList<Integer>> map = new HashMap<>();
-
-        diagonal(root, 0, map);
-        ArrayList<Integer> myans = new ArrayList<>();
-
-        for (int i = 0; i < map.size(); i++) {
-            for (int e : map.get(i)) {
-                myans.add(e);
+                    }
+                    rn = rn.right;
+                }
             }
+
+            ans.add(sum);
         }
 
-        return myans;
-        // add your code here.
+        return ans;
     }
 
 }
