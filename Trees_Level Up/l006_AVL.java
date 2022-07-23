@@ -1,4 +1,5 @@
 public class l006_AVL {
+    // ! AVL is a kind of self balancing Tree.
 
     // # The first question to be asked is in which minimum number of nodes the
     // # structure of the tree gets disbalanced.
@@ -289,9 +290,9 @@ public class l006_AVL {
     // So we can also convert the BST into sorted doubly linked list, inplace and
     // then convert the sorted DLL to BST
 
-    // # But here it can also be solved by using AVL. 
+    // # But here it can also be solved by using AVL.
 
-    // ! But the question is HOW ??? 
+    // ! But the question is HOW ???
 
     public static void main(String[] args) {
 
