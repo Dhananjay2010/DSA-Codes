@@ -275,6 +275,24 @@ public class l006_AVL {
         display(root.right);
     }
 
+    // b <=======================Questions========================>
+    // https://leetcode.com/problems/balance-a-binary-search-tree/
+    // Leetcode 1382
+
+    // ? Remember that we can convert BST to a sorted array and then convert it into
+    // ? balanced BST. Because when converting a sorted array into BST, we find the
+    // ? middle and then split it into two halfs. Therefore the BST formed is
+    // ? balanced
+
+    // # But here we would have taken the extra space of array.
+
+    // So we can also convert the BST into sorted doubly linked list, inplace and
+    // then convert the sorted DLL to BST
+
+    // # But here it can also be solved by using AVL. 
+
+    // ! But the question is HOW ??? 
+
     public static void main(String[] args) {
 
         TreeNode root = null;
