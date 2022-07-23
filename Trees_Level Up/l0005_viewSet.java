@@ -1032,6 +1032,16 @@ public class l0005_viewSet {
 
     // `b-a ==> other - this giver us the opposite of default behaviour. Decreasing
 
+    // ! Time Complexity : NlogN;
+    // Why ??
+
+    // ? Insertion and removal in priority queue is of logN.
+    // so during the whole function every element is removed and inserted. for every
+    // element, the work is don 2logN.
+
+    // And there are N elements so the complexity will be 2nlogn. In Big o == >
+    // o(nlogn)
+
     public static void shadowOfTree_practice_vertical_level_ii(TreeNode root, int verticalLevel, int[] width) {
 
         if (root == null) {
