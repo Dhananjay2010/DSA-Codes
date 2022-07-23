@@ -28,7 +28,7 @@
       "italic": false
     },
     {
-      "tag": "todo",
+      "tag": "#",
       "color": "#006a00",
       "strikethrough": false,
       "underline": false,
@@ -102,5 +102,4 @@
     },
   ],
   "better-comments.highlightPlainText": true,
-  "better-comments.multilineComments": true,
 }

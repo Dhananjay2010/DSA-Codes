@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
-public class l0005_viewSet {
+public class l005_viewSet {
 
     public static class TreeNode {
 
@@ -1068,7 +1068,7 @@ public class l0005_viewSet {
         }
     }
 
-    public List<List<Integer>> verticalTraversal(TreeNode root) {
+    public List<List<Integer>> verticalTraversal_ii(TreeNode root) {
 
         List<List<Integer>> ans = new ArrayList<>();
 
