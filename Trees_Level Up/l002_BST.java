@@ -421,9 +421,142 @@ public class l002_BST {
         }
 
         return root;
-    }   
+    }
 
-    // ? Home work : insert node and delete node -> T : O(LogN), S : O(1) (Iterative
-    // Solution)
+    // b <=======================Balance a Binary Tree========================>
+    // https://leetcode.com/problems/balance-a-binary-search-tree/
+    // Leetcode 1382
+
+    // ? Remember that we can convert BST to a sorted array and then convert it into
+    // ? balanced BST. Because when converting a sorted array into BST, we find the
+    // ? middle and then split it into two halfs. Therefore the BST formed is
+    // ? balanced. This will be of O(n) complexity.
+
+    // # But here we would have taken the extra space of array.
+
+    // So we can also convert the BST into sorted doubly linked list, inplace and
+    // then convert the sorted DLL to BST
+
+    // # But here it can also be solved by using AVL.
+
+    // ! But the question is HOW ???
+
+    // So that we can calculate the height in O(1), we will be keeping an array of
+    // size of the range of nodes value since node value will be distinct.
+
+    // Otherwise we will have to calculate the height everytime and that will an
+    // operation of logN itself. Calculating height everytime will get us the space
+    // complexity of O(1)
+
+    // We are going to do as we did in AVL.
+
+    // We are going to rotate the tree such that our tree remains balanced.
+
+    // So we have just called the simple post order call.
+
+    // ? Why post order ???
+
+    // # It is because to calculate the balance factor we will be needing the height
+    // # of both left and right subtree.
+
+    // And whenever we are returing the root, we Rotate it using the getRotation
+    // function to get the balance BST.
+
+    // ! Important Note : To solve this using the AVL, please dry on the skew BST
+    // ! tree and draw stack diagram to get more idea
+
+    public static void updateHeight(TreeNode root, int[] height) {
+
+        int lh = root.left != null ? height[root.left.val] : -1;
+        int rh = root.right != null ? height[root.right.val] : -1;
+
+        height[root.val] = Math.max(lh, rh) + 1;
+    }
+
+    public static int getBalance(TreeNode root, int[] height) {
+
+        int lh = root.left != null ? height[root.left.val] : -1;
+        int rh = root.right != null ? height[root.right.val] : -1;
+
+        int bal = lh - rh;
+
+        return bal;
+    }
+
+    public static TreeNode leftRotation(TreeNode A, int[] height) {
+
+        TreeNode B = A.right;
+        TreeNode BKaLeft = B.left;
+
+        B.left = A;
+        A.right = BKaLeft;
+
+        // Now we have called the getRotation function again because
+        // Aisa ho sakta hai ki rotation ke baad bhi mera tree unbalanced ho sakta hai
+        // to use dubara balance karne ke liye getRotation call kiya
+
+        B.left = getRotation(A, height);
+        return getRotation(B, height);
+    }
+
+    public static TreeNode rightRotation(TreeNode A, int[] height) {
+
+        TreeNode B = A.left;
+        TreeNode BKaRight = B.right;
+
+        B.right = A;
+        A.left = BKaRight;
+
+        // Now we have called the getRotation function again because
+        // Aisa ho sakta hai ki rotation ke baad bhi mera tree unbalanced ho sakta hai
+        // to use dubara balance karne ke liye getRotation call kiya
+
+        B.right = getRotation(A, height);
+        return getRotation(B, height);
+
+    }
+
+    public static TreeNode getRotation(TreeNode root, int[] height) {
+        // Now since here we are converting an already BSt to a balanced BST, so the
+        // ` balance factor can be greater than 2 and can be less that -2. Other wise
+        // the call remains the same as in AVL tree
+
+        updateHeight(root, height);
+        if (getBalance(root, height) >= 2) {
+            if (getBalance(root.left, height) >= 1) {
+                return rightRotation(root, height);
+            } else {
+                root.left = leftRotation(root.left, height);
+                return rightRotation(root, height);
+            }
+        } else if (getBalance(root, height) <= -2) {
+            if (getBalance(root.right, height) <= -1) {
+                return leftRotation(root, height);
+            } else {
+                root.right = rightRotation(root.right, height);
+                return leftRotation(root, height);
+            }
+        }
+
+        return root;
+    }
+
+    public TreeNode balanceBST(TreeNode root, int[] height) {
+
+        if (root == null) {
+            return null;
+        }
+
+        root.left = balanceBST(root.left, height);
+        root.right = balanceBST(root.right, height);
+
+        return getRotation(root, height);
+    }
+
+    public TreeNode balanceBST(TreeNode root) {
+
+        int[] height = new int[(int) 1e5 + 1];
+        return balanceBST(root, height);
+    }
 
 }
