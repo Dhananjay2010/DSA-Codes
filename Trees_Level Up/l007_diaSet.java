@@ -295,6 +295,168 @@ public class l007_diaSet {
 
     }
 
+    // b <==============Binary Tree Maximum Path Sum=======================>
+    // https://leetcode.com/problems/binary-tree-maximum-path-sum/
+
+    // ? Basic faith ye hai ki left se maine {NodeToNodeMaxPathSum,
+    // ? RootToNodeMaxPathSum} mangaya aur right se maine {NodeToNodeMaxPathSum,
+    // ? RootToNodeMaxPathSum} mangaya. Ab maine sare NodeToNodeMaxPath jo bhi ho
+    // ? sakte the unhe compare kiya. Aur max nikalke returnkar diya
+
+    // # Yahan pe humpe bahaut sare cases hain compare karne ke liye
+
+    // 1. Mera NodeToNodeMaxPath mujhe left subtree mai mile
+    // 2. Mera NodeToNodeMaxPath mujhe right subtree mai mile
+    // 3. Ya mai he NodeToNodeMaxPath hun (sirf root.val)
+    // 4. Root se nikalta hua left mai end hua NodeToNodeMaxPath
+    // 5. Root se nikalta hua right mai end hua NodeToNodeMaxPath
+    // 6. Left se nikalke root ko milake right mai end hone wala NodeToNodeMaxPath
+
+    // To basically humne do size ka array rakha taki hum {NodeToNodeMaxPathSum,
+    // RootToNodeMaxPathSum} sath sath nikal sakein
+
+    // RootToNodeMaxPathSum isiliye chahiye kyunki iske bina 4th, 5th and 6th point
+    // ki value nikal he ni pate
+
+    // Agar hum static rakhte, to bas RootToNodeMaxPathSum he return karwate, aur
+    // kuch nhi
+
+    public static int max(int... arr) {
+
+        int maximum = arr[0];
+        for (int e : arr) {
+            maximum = Math.max(e, maximum);
+        }
+        return maximum;
+    }
+
+    // {NodeToNodeMaxPathSum, RootToNodeMaxPathSum}
+    public int[] maxPathSum_NodeToNode(TreeNode root) {
+
+        if (root == null) {
+            return new int[] { -(int) 1e9, 0 };
+            // Yahan pe initially 0 isiliye return karwaya kyunki agar -(int) 1e9 rakhte to
+            // jab hum add karte isme root.val, to ek additional check add karna hota ki
+            // agar value -(int) 1e9 hai to 0 add karo warna value add karo
+        }
+
+        int[] lp = maxPathSum_NodeToNode(root.left);
+        int[] rp = maxPathSum_NodeToNode(root.right);
+
+        int[] myAns = new int[2];
+        int rootToNode = Math.max(lp[1], rp[1]) + root.val; // 4th and 5th point
+
+        myAns[0] = max(lp[0], rp[0], rootToNode, lp[1] + rp[1] + root.val, root.val);
+        myAns[1] = Math.max(root.val, rootToNode);
+        return myAns;
+    }
+
+    public int maxPathSum_NodeToNode_(TreeNode root) {
+        return maxPathSum_NodeToNode(root)[0];
+    }
+
+    // b Method 2 : Using the static variable
+
+    // Yahan pe thoda sa faith change ho jayega. Maine yayah mana hai ki 1st aur 2nd
+    // point ka max static pehle se he apne mai store karke rakhega. Baki maine same
+    // left se RootToNodeMaxPathSum mangaya aur right se bhi RootToNodeMaxPathSum
+    // mangaya. Aur sari values ko compare kakre static mai store kardiya.
+
+    static int NodeToNodeMaxPathSum = -(int) 1e9;
+
+    public static int maxPathSum_(TreeNode root) {
+        if (root == null)
+            return 0; // Yahan pe initially 0 isiliye return karwaya kyunki agar -(int) 1e9 rakhte to
+                      // jab hum add karte isme root.val, to ek additional check add karna hota ki
+                      // agar value -(int) 1e9 hai to 0 add karo warna value add karo
+
+        int lrtn = maxPathSum_(root.left); // left root To Node
+        int rrtn = maxPathSum_(root.right); // right root To Node
+
+        int rootToNode = Math.max(lrtn, rrtn) + root.val;
+        NodeToNodeMaxPathSum = max(NodeToNodeMaxPathSum, rootToNode, root.val, lrtn + root.val + rrtn);
+
+        return max(rootToNode, root.val);
+    }
+
+    public static int maxPathSum_static(TreeNode root) {
+        maxPathSum_(root);
+        return NodeToNodeMaxPathSum;
+    }
+
+    // b <================= Recover BST ============================>
+    // https://leetcode.com/problems/recover-binary-search-tree/submissions/
+
+    // ? Simple thing to try when we have a BSt question is to think it of a sorted
+    // ? array.
+
+    // Ab do sorted array ki value swap hui hain. Ab array ko dubara sort karna hai.
+
+    // Iske liye bas jahan pe swap hua hai, wahan ke index nikal lo aur unhe dubara
+    // swap kardo.
+
+    // Similarly BST mai bhi aise he kiya. Dono swap nodes pata lagaye aur unke data
+    // ko swap kar diya.
+
+    // Same prev ka pointer rakha aur a aur b , swap index ko store karne ke liye
+
+    // Dry run to test case :
+    // 1. Adjacent index swap (a heartbeat graph)
+    // 2. any two index swap (a distant heartbeat graph)
+
+    // Sorted array has a straight line graph
+
+    public static TreeNode rightMost(TreeNode left, TreeNode curr) {
+
+        while (left.right != null && curr != left.right) {
+            left = left.right;
+        }
+        return left;
+    }
+
+    public void recoverTree(TreeNode root) {
+        TreeNode curr = root;
+        TreeNode prev = null, a = null, b = null;
+        while (curr != null) {
+
+            TreeNode left = curr.left;
+            if (left == null) {
+                // print
+                if (prev != null && prev.val > curr.val) {
+                    if (a == null)
+                        a = prev;
+                    b = curr;
+                }
+                prev = curr;
+                curr = curr.right;
+            } else {
+
+                TreeNode currKeLeftKaRightMost = rightMost(left, curr);
+
+                if (currKeLeftKaRightMost.right == null) {
+                    currKeLeftKaRightMost.right = curr; // thread creation block
+                    curr = curr.left;
+                } else {
+                    currKeLeftKaRightMost.right = null;
+                    // print
+                    if (prev != null && prev.val > curr.val) {
+                        if (a == null)
+                            a = prev;
+                        b = curr;
+                    }
+                    prev = curr;
+                    curr = curr.right;
+                }
+            }
+        }
+
+        if (a != null) {
+            int temp = a.val;
+            a.val = b.val;
+            b.val = temp;
+        }
+    }
+
     // b <================Path Sum III (Not solved yet..) =====================>
     // https://leetcode.com/problems/path-sum-iii/
     static int count = 0;
