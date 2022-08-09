@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.ArrayList
+import java.util.LinkedList;
 
 public class l007_diaSet {
 
@@ -455,6 +456,60 @@ public class l007_diaSet {
             a.val = b.val;
             b.val = temp;
         }
+    }
+
+    // b <================== Maximum Width of Binary Tree ==================>
+    // https://leetcode.com/problems/maximum-width-of-binary-tree/
+
+    // So Basically the logic is simple. Humne kya kiya ki humne ek class banayi aur
+    // `us class mai node ke sath uska index store kiya. Now this index is basically
+    // the index if the the tree is seen as an array. Like in heap.
+
+    // So if pi denotes the parent index then left child will be at index pi*2 + 1
+    // and the right child will be at index pi * 2 + 2.
+
+    // And for to calculate max width, what we did is stored the leftmost and the
+    // rightmost index of a level and calculated the difference between them. And to
+    // calcualate the max, we compared the difference at every level.
+
+    // Do the basic dry run, you will figure out after that.
+
+    public static class Pair {
+        TreeNode node = null;
+        int index = 0;
+
+        Pair(TreeNode node, int index) {
+            this.node = node;
+            this.index = index;
+        }
+    }
+
+    public int widthOfBinaryTree(TreeNode root) {
+
+        LinkedList<Pair> que = new LinkedList<>();
+        que.addLast(new Pair(root, 0));
+
+        int max = 0;
+        while (que.size() != 0) {
+            int size = que.size();
+            int leftMostIndex = que.getFirst().index;
+            int rightMostIndex = que.getFirst().index;
+            while (size-- > 0) {
+
+                Pair rn = que.removeFirst();
+                TreeNode node = rn.node;
+                int pi = rn.index;
+                if (node.left != null) {
+                    que.addLast(new Pair(node.left, pi * 2 + 1));
+                }
+                if (node.right != null) {
+                    que.addLast(new Pair(node.right, pi * 2 + 2));
+                }
+                rightMostIndex = pi;
+            }
+            max = Math.max(max, rightMostIndex - leftMostIndex + 1);
+        }
+        return max;
     }
 
     // b <================Path Sum III (Not solved yet..) =====================>
