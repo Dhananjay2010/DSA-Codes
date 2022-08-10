@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class l003_Traversal_set {
 
@@ -710,13 +711,157 @@ public class l003_Traversal_set {
         }
     }
 
+    // b <===============Binary Tree Zigzag Level Order Traversal ================>
+    // https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/
+
+    // We will be using two LinkedList one for queue and another for stack.
+    // We will always be inserting the elements in the stack except for the root
+    // element.
+
+    // Now the trick is to swap the two linkedlist after the level is complete.
+    // Now by doing dry run, we figured out that we if the level is odd, then the
+    // child will be pushed to stack from right to left
+
+    // Similarly , if the level is even, then the child will be push from left to
+    // right
+
+    // ? The key point is that the node is always pushed to the stack.
+
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+
+        if (root == null)
+            return new ArrayList<>();
+
+        List<List<Integer>> ans = new ArrayList<>();
+        LinkedList<TreeNode> que = new LinkedList<>();
+        LinkedList<TreeNode> st = new LinkedList<>();
+
+        que.addLast(root);
+        int level = 0;
+        while (que.size() != 0) {
+            int size = que.size();
+            ArrayList<Integer> myAns = new ArrayList<>();
+            while (size-- > 0) {
+                TreeNode rn = que.removeFirst();
+                myAns.add(rn.val);
+
+                if (level % 2 == 0) { // Level even == > children pushed to L to R
+                    if (rn.left != null) {
+                        st.addFirst(rn.left); // # Always pushed to the stack
+                    }
+
+                    if (rn.right != null) {
+                        st.addFirst(rn.right); // # Always pushed to the stack
+                    }
+                } else {// Level odd == > children pushed to R to L
+                    if (rn.right != null) {
+                        st.addFirst(rn.right); // # Always pushed to the stack
+                    }
+                    if (rn.left != null) {
+                        st.addFirst(rn.left); // # Always pushed to the stack
+                    }
+                }
+            }
+
+            ans.add(myAns);
+            LinkedList<TreeNode> temp = st;
+            st = que;
+            que = temp;
+            level++;
+        }
+
+        return ans;
+    }
+
+    // b <<===================Flatten the Binary Tree =================>>
+    // https://leetcode.com/problems/flatten-binary-tree-to-linked-list/submissions/
+
+    // ? Method 1: O(n²)
+
+    // Faith ye rakha ki left aur right child apne aap ko linerize karke le aayenge.
+    // Mai unke tail ko nikalunga aur bas pointers shi jagah pe add kardunga
+
+    public static TreeNode getTail(TreeNode root) {
+
+        if (root == null)
+            return null;
+
+        while (root.right != null) {
+            root = root.right;
+        }
+
+        return root;
+    }
+
+    public static void flatten(TreeNode root) {
+
+        if (root == null)
+            return;
+
+        flatten(root.left);
+        flatten(root.right);
+
+        TreeNode right = root.right;
+        TreeNode left = root.left;
+
+        TreeNode leftTail = getTail(left);
+
+        if (left != null) { // Agar merepe left hai he nhi to mujhe add karna he nhi chahiye
+            root.right = left;
+            leftTail.right = right;
+        }
+
+        root.left = null;
+    }
+
+    // b Method 2 : More optimized O(n)
+
+    // Maine yahan pe faith ye rakha ki left aur right child dono apne aap ko
+    // linearize karke le aayenge aur sath mai mujh apni tail bhi return karenge. Ab
+    // mai tail ki help se sare pointers ko ache se set kardunga
+
+    // ! Important Point :
+    // Dry run on skew tree (both left and right). Will find an edge case when
+    // returning tail
+
+    // Test case : [1,2,null,3]
+
+    // For example merepe right tail null aaya, to agar merepe left tail hai present
+    // to wo banega ab mera tail, aur agar left tail bhi nhi hai to root banega
+    // tail. root wli condition leaf node ke liye hai.
+
+    // Aur agar merepe rightTail hai to to mai whi he return kardunga. Simple.
+
+    public static TreeNode flatten_(TreeNode root) {
+
+        if (root == null || (root.right == null && root.left == null))
+            return root;
+
+        TreeNode leftTail = flatten_(root.left);
+        TreeNode rightTail = flatten_(root.right);
+
+        TreeNode right = root.right;
+        TreeNode left = root.left;
+
+        if (left != null) { // Agar merepe left hai he nhi to mujhe add karna he nhi chahiye
+            root.right = left;
+            leftTail.right = right;
+            root.left = null;
+        }
+
+        return rightTail == null ? leftTail : rightTail;
+    }
+
+    public void flatten__(TreeNode root) {
+        TreeNode x = flatten_(root);
+    }
+
     // Todo : https://www.geeksforgeeks.org/boundary-traversal-of-binary-tree/
 
     // 31 may recording
     // Todo :
     // https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/
-    // Todo : https://leetcode.com/problems/binary-tree-cameras/
+    // Todo :   
     // Todo : https://practice.geeksforgeeks.org/problems/clone-a-binary-tree/1/
-    // Todo : https://leetcode.com/problems/delete-node-in-a-bst/
     // Todo : https://leetcode.com/problems/sum-of-distances-in-tree/
 }
