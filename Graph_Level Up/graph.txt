@@ -1,0 +1,4 @@
+/It is a mixture of algorithms, therefore it is called graph theory. It is not a sort of data structure.
+
+Directed graph is the tree which can move in one direction only.
+Undirected graph is the one that can move in both the direction.
