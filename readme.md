@@ -7,5 +7,6 @@
 Topics covered are :-
 
 1. Trees
+2. Graph
 
 Suggestions are always welcomed:grinning:.
