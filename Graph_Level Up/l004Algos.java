@@ -128,4 +128,84 @@ public class l004Algos {
             }
         }
     }
+
+    // b <============= 743. Network Delay Time ==================>
+    // https://leetcode.com/problems/network-delay-time/
+
+    // # Here created edge and the pair of both integer array. Good for online test.
+    // # But create a class in front of interviewer.
+
+    // ! Also try to break it in function.
+
+    public int networkDelayTime(int[][] times, int n, int k) {
+
+        // Edge : {v,w}
+        ArrayList<int[]>[] graph = new ArrayList[n + 1];
+
+        for (int i = 0; i < n + 1; i++)
+            graph[i] = new ArrayList<>();
+
+        for (int[] time : times) {
+            // times[i] = (ui, vi, wi)
+            graph[time[0]].add(new int[] { time[1], time[2] }); // Apna graph create kiya
+        }
+
+        // ! Baki simple Dijistra lagaya. niche ka pura hum ek function mai likh sakte
+        // ! hain.
+
+        // pair : {v,wsf}
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> {
+            return a[1] - b[1];
+        });
+
+        boolean[] vis = new boolean[n + 1];
+        int[] dis = new int[n + 1]; // Keeping a distance array to store the min distance(with weight) of every
+                                    // vertex.
+        Arrays.fill(dis, (int) 1e9);
+
+        pq.add(new int[] { k, 0 });
+
+        while (pq.size() != 0) {
+            int[] rn = pq.remove();
+            int u = rn[0], wsf = rn[1];
+            if (vis[u])
+                continue;
+
+            vis[u] = true;
+            dis[u] = wsf;
+
+            for (int[] e : graph[u]) {
+                int wt = e[1], v = e[0];
+                if (!vis[v]) {
+                    pq.add(new int[] { v, wsf + wt });
+                }
+            }
+        }
+
+        int maxDistance = 0;
+        for (int i = 1; i < n + 1; i++) {
+            if (dis[i] == (int) 1e9) // if any value is still (int)1e9, it means that that vertex was never reached.
+                return -1;
+
+            maxDistance = Math.max(maxDistance, dis[i]);
+        }
+
+        return maxDistance;
+    }
+
+    // b <=========== Dijikstra Better ==============>
+    // Jaise he mai elements ko queue mai dalunga, waise he mai apna distance ka
+    // array update marunga
+
+    // Intially mera distance ka array ∞ hoga. Ab jaise he koi element aaya, mai ye
+    // check karunga ki wo element jis wsf ke sath aaya hai wo distance array mai jo
+    // value rakhi hai wo usse better hai ki nhi
+
+    // ? So basically ye distance ka array kuch elements jinki need nhi hai unko
+    // ? dalne ne nhi deta priority queue mai
+
+    // # Parent naam ka array mujhe path shortest path in terms of weight nikalne
+    // # mai help karta hai.
+    // # Distance naam ka array mujhe O(1) mai min distance(lightest path ka
+    // # distance) nikal ke deta hai.
 }
