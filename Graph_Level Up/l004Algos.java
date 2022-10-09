@@ -1,6 +1,7 @@
 import java.util.PriorityQueue;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 
 public class l004Algos {
 
@@ -525,4 +526,407 @@ public class l004Algos {
 
     }
 
+    // b <===================== The Maze ===================>
+    // https://www.lintcode.com/problem/787/
+
+    // ! My method
+    public boolean hasPath(int[][] maze, int[] start, int[] destination) {
+        // write your code here
+        int n = maze.length, m = maze[0].length;
+        int er = destination[0], ec = destination[1];
+        LinkedList<int[]> que = new LinkedList<>();
+        que.add(start);
+
+        boolean[][] vis = new boolean[n][m];
+        int[][] dir = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+        vis[start[0]][start[1]] = true;
+        while (que.size() != 0) {
+            int size = que.size();
+            while (size-- > 0) {
+
+                int[] rn = que.removeFirst();
+                int sr = rn[0], sc = rn[1];
+
+                for (int d = 0; d < dir.length; d++) {
+                    int r = sr, c = sc;
+                    for (int rad = 1; rad < Math.max(n, m); rad++) {
+                        r = sr + rad * dir[d][0];
+                        c = sc + rad * dir[d][1];
+
+                        if (r >= 0 && c >= 0 && r < n && c < m) {
+                            if (maze[r][c] == 0)
+                                continue;
+                            else
+                                break;
+                        } else
+                            break;
+                    }
+
+                    r -= dir[d][0];
+                    c -= dir[d][1];
+
+                    if (vis[r][c])
+                        continue;
+                    vis[r][c] = true;
+                    que.addLast(new int[] { r, c });
+                    if (r == er && c == ec)
+                        return true;
+                }
+
+            }
+        }
+        return false;
+    }
+
+    // Bhaiya Method
+    // 490
+
+    // Maine kiya kya ki kyunki yahan pe friction less surface de rakhi hai to jahan
+    // pe bhi ek push mai ball jaki rukeggi usko mai mark kar dunga
+
+    // yahi karna hai simple kaam
+    // ? Yahan pe humne visited ka array liya hai to mark. Why didn't we make
+    // ? changes in the maze Array?
+
+    // Aisa isiliye kiya kyunki agar mai aisa karta to ball jahan pe bhi rukti to
+    // mai use mark kar deta, aur next time wo mere liye wall ka kaam karta jo ki
+    // galat ho kyunki wall to wahan pe hain he nhi. Isse hume galat answer milta
+
+    public boolean hasPath_(int[][] maze, int[] start, int[] destination) {
+        int n = maze.length, m = maze[0].length, sr = start[0], sc = start[1], er = destination[0], ec = destination[1];
+        LinkedList<Integer> que = new LinkedList<>();
+        boolean[][] vis = new boolean[n][m];
+        int[][] dir = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+
+        que.add(sr * m + sc); // converted it into 1-d
+        vis[sr][sc] = true;
+
+        while (que.size() != 0) {
+            int size = que.size();
+            while (size-- > 0) {
+                int idx = que.removeFirst(), i = idx / m, j = idx % m;
+                for (int[] d : dir) {
+
+                    int r = i, c = j;
+                    if (r == er && c == ec)
+                        return true;
+                    while (r >= 0 && c >= 0 && r < n && c < m && maze[r][c] == 0) { // The radius loop in a different
+                                                                                    // way
+                        r += d[0];
+                        c += d[1];
+                    }
+
+                    // Direction minus isiliye kiya Taki mai 1 se pehle ka just 0 tha wahan pe aaun
+                    // aur mujhe wo r and c mil jaye
+                    r -= d[0];
+                    c -= d[1];
+
+                    if (vis[r][c])
+                        continue;
+
+                    vis[r][c] = true;
+                    que.addLast(r * m + c);
+
+                }
+
+            }
+        }
+        return false;
+    }
+
+    // b <================== Maze II ==================>
+    // https://www.lintcode.com/problem/788/description
+
+    // ! Important Point :
+
+    // # In dijikstra, you cannot use bfs without cycle. It will always give you
+    // # wrong result.
+
+    // ? Why ? Kyunki agar mai pehle he ek vertex ko mark kar diya to wo vertex
+    // ? dubara dalega he nhi chahe wo baad mai kam weight ke sath he kyun na aaye.
+    // ? To isiliye bfs with cycle use karte hain.
+
+    // Dry run kar samaj mai aa jayega. Take a basic rectangle graph.
+
+    // Baki question same uper wale ki tarah hai.
+
+    // ! To Dijikstra mai hum bfs without cycle use karte hain ya to distance array
+    // ! ka use karte hain.
+
+    public int shortestDistance(int[][] maze, int[] start, int[] destination) {
+        // write your code here
+        int n = maze.length, m = maze[0].length, sr = start[0], sc = start[1], er = destination[0], ec = destination[1];
+        PriorityQueue<int[]> que = new PriorityQueue<>((a, b) -> {
+            return a[2] - b[2];
+        });
+        boolean[][] vis = new boolean[n][m];
+        int[][] dir = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+
+        // {row, columnm totalSteps}
+        que.add(new int[] { sr, sc, 0 });
+        vis[sr][sc] = true;
+
+        while (que.size() != 0) {
+            int size = que.size();
+            while (size-- > 0) {
+                int[] rn = que.remove();
+                int i = rn[0], j = rn[1], totalSteps = rn[2];
+
+                if (i == er && j == ec)
+                    return totalSteps;
+
+                vis[i][j] = true;
+                for (int d = 0; d < dir.length; d++) {
+                    int r = i, c = j;
+                    int steps = 0;
+                    while (r >= 0 && c >= 0 && r < n && c < m && maze[r][c] == 0) {
+                        r += dir[d][0];
+                        c += dir[d][1];
+                        steps++;
+                    }
+
+                    r -= dir[d][0];
+                    c -= dir[d][1];
+                    steps--;
+                    if (!vis[r][c])
+                        que.add(new int[] { r, c, totalSteps + steps });
+
+                }
+
+            }
+        }
+        return -1;
+    }
+
+    // b With Distance Array : Bhaiya's Code
+
+    public static class pair_ implements Comparable<pair_> {
+
+        int r = 0, c = 0, steps = 0;
+
+        pair_(int r, int c, int steps) {
+            this.r = r;
+            this.c = c;
+            this.steps = steps;
+        }
+
+        @Override // Override to check if the override function name is same as written in java
+        public int compareTo(pair_ o) {
+            return this.steps - o.steps; // same this - other concept
+        }
+
+    }
+
+    public int shortestDistance_(int[][] maze, int[] start, int[] destination) {
+        int n = maze.length, m = maze[0].length, sr = start[0], sc = start[1], er = destination[0], ec = destination[1];
+        int[][] dir = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+
+        int[][] dis = new int[n][m];
+        for (int[] d : dis)
+            Arrays.fill(d, (int) 1e8);
+
+        PriorityQueue<pair_> que = new PriorityQueue<>();
+        que.add(new pair_(sr, sc, 0));
+        dis[sr][sc] = 0;
+
+        while (que.size() != 0) {
+            pair_ p = que.remove();
+            if (p.r == er && p.c == ec)
+                return p.steps;
+            for (int[] d : dir) {
+                int r = p.r, c = p.c, steps = p.steps;
+                while (r >= 0 && c >= 0 && r < n && c < m && maze[r][c] == 0) {
+                    r += d[0];
+                    c += d[1];
+                    steps++;
+                }
+
+                r -= d[0];
+                c -= d[1];
+                steps--;
+
+                if (steps >= dis[r][c])
+                    continue;
+
+                que.add(new pair_(r, c, steps));
+                dis[r][c] = steps;
+            }
+        }
+
+        return -1;
+    }
+
+    // b <=================== Maze III =========================>
+    // Leetcode 499
+
+    // Yahan pe basically lexographically sort wali first string return karni hai
+    // agar kahin pe jane ke liye steps equal hain. To isiliye comparator mai string
+    // ka comparison add kiya taki agar steps equal ho to wo pehle wali string
+    // nikale jo lexographically pehle aaye
+
+    // ? Baki puar same hai. Thode se hole ke check add kiye hain. Bas. Same uper
+    // ? wale question ki tarah hai.
+
+    public static class stringPair implements Comparable<stringPair> {
+        int r = 0, c = 0, steps = 0;
+        String str = "";
+
+        stringPair(int r, int c, int steps, String str) {
+            this.r = r;
+            this.c = c;
+            this.steps = steps;
+            this.str = str;
+        }
+
+        @Override
+        public int compareTo(stringPair p) {
+            if (this.steps != p.steps)
+                return this.steps - p.steps;
+            return this.str.compareTo(p.str); // To compare two strings lexographically. Same this - other concept.
+        }
+    }
+
+    public static String findShortestWay(int[][] maze, int[] ball, int[] hole) {
+        int sr = ball[0], sc = ball[1], er = hole[0], ec = hole[1], n = maze.length, m = maze[0].length;
+        PriorityQueue<stringPair> que = new PriorityQueue<>();
+        que.add(new stringPair(sr, sc, 0, ""));
+        int[][] dis = new int[n][m];
+        for (int[] d : dis) {
+            Arrays.fill(d, (int) 1e9);
+        }
+
+        dis[sr][sc] = 0;
+
+        int[][] dir = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+        String[] dirS = { "d", "u", "r", "l" };
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            while (size-- > 0) {
+                stringPair rn = que.remove();
+                int i = rn.r, j = rn.c, totalSteps = rn.steps;
+                String str = rn.str;
+
+                if (i == er && j == ec)
+                    return str;
+
+                for (int d = 0; d < dir.length; d++) {
+                    int r = i, c = j;
+
+                    int steps = 0;
+                    // Jaise he hole milta hai to break karna hai to isisliye !(r == er && c == ec)
+                    // check add kiya.
+
+                    // !(r == er && c == ec) check can also be written as (r != er) || (c != ec)
+                    while (r >= 0 && c >= 0 && r < n && c < m && maze[r][c] == 0 && !(r == er && c == ec)) {
+                        r += dir[d][0];
+                        c += dir[d][1];
+                        steps++;
+                    }
+
+                    // Agar hole milta hai to use sidhe queue mai add karna hai
+                    if (!(r == er && c == ec)) { // Agar hole nhi hai to he mai minus karunga
+                        r -= dir[d][0];
+                        c -= dir[d][1];
+                        steps--;
+                    }
+
+                    if (totalSteps + steps > dis[r][c]) // equal to check not added since we want the lexographically
+                                                        // string first for same steps to the hole
+                        continue;
+
+                    que.add(new stringPair(r, c, totalSteps + steps, str + dirS[d]));
+                    dis[r][c] = totalSteps + steps;
+                }
+            }
+        }
+        return "impossible";
+    }
+
+    // Bhaiya's Method :
+
+    // Yahan pe jo update kar rehe hain dis[r][c] with pointPair wo karne ki
+    // jaroorat nhi hai waise kyunki jo humne class mai comparable likha hai wo sab
+    // handle kar lega agar do string aise aayi jinke steps equal hue to
+
+    // Aur hum yahan pe pura bfs run hone de rahe hain jab answer mil gaya tab bhi
+    // joki bilkul bhi requierd nhi hai.
+
+    // ? Isko Simple visited se bhi kar sakte hain
+
+    public static class pointPair implements Comparable<pointPair> {
+        int r = 0, c = 0, steps = 0;
+        String psf = "";
+
+        pointPair(int r, int c, int steps, String psf) {
+            this.r = r;
+            this.c = c;
+            this.steps = steps;
+            this.psf = psf;
+        }
+
+        @Override
+        public int compareTo(pointPair o) {
+            if (this.steps != o.steps)
+                return this.steps - o.steps;
+            else
+                return this.psf.compareTo(o.psf);
+        }
+    }
+
+    public String findShortestWay_(int[][] maze, int[] start, int[] destination) {
+        int n = maze.length, m = maze[0].length, sr = start[0], sc = start[1], er = destination[0], ec = destination[1];
+        int[][] dir = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+        String[] dirS = { "d", "u", "r", "l" };
+        pointPair[][] dis = new pointPair[n][m];
+        for (int i = 0; i < n * m; i++) // Good way to add some data in 2-D array
+            dis[i / m][i % m] = new pointPair(i / m, i % m, (int) 1e8, "");
+
+        PriorityQueue<pointPair> que = new PriorityQueue<>();
+        pointPair src = new pointPair(sr, sc, 0, "");
+
+        que.add(src);
+        dis[sr][sc] = src;
+
+        while (que.size() != 0) {
+            pointPair p = que.remove();
+            for (int i = 0; i < 4; i++) {
+                int[] d = dir[i];
+
+                int r = p.r, c = p.c, steps = p.steps;
+                while (r >= 0 && c >= 0 && r < n && c < m && maze[r][c] == 0 && !(r == er && c == ec)) { // !(r == er &&
+                                                                                                         // c == ec) ==
+                                                                                                         // (r != er ||
+                                                                                                         // c != ec)
+                    r += d[0];
+                    c += d[1];
+                    steps++;
+                }
+
+                if (!(r == er && c == ec)) {
+                    r -= d[0];
+                    c -= d[1];
+                    steps--;
+                }
+
+                pointPair np = new pointPair(r, c, steps, p.psf + dirS[i]);
+                if (steps > dis[r][c].steps || dis[r][c].compareTo(np) <= 0)
+                    continue;
+                // This dis[r][c].compareTo(np) <= 0 check added since hume dis[r][c] ko tabhi
+                // ` update karna hai ya to steps kam ho ya agar steps equal ho aur jo string aa
+                // rahi hai wo pehle wali string se lexographically achi ho.
+
+                // For example agar pehle dis[r][c] ki string thi "ul" aur ab aayi "lul" to
+                // {"ul" - "lul" > 0} by this - other concept. To ab update karna hai kyunki
+                // "lul" achi hai lexographically "ul" se.
+
+                que.add(np);
+                dis[r][c] = np;
+            }
+        }
+
+        pointPair ans = dis[er][ec]; // end mai answer return kara
+        return ans.steps != (int) 1e8 ? ans.psf : "impossible";
+    }
 }
