@@ -3,12 +3,16 @@ import java.util.LinkedList;
 
 public class l002_directed {
 
-    public class Edge {
+    public static class Edge {
         int v, w;
 
         Edge(int v, int w) {
             this.v = v;
             this.w = w;
+        }
+
+        Edge() {
+
         }
     }
 
@@ -202,7 +206,7 @@ public class l002_directed {
         return ans;
     }
 
-    //b <============Kahn's Algo with level importance =================>
+    // b <============Kahn's Algo with level importance =================>
 
     public static void kahnsAlgo_01(int n, ArrayList<Edge>[] graph) {
         int[] indegree = new int[n];
@@ -242,4 +246,152 @@ public class l002_directed {
             ans.clear();
         }
     }
+
+    // b <================ KosaRaju Algo ======================>
+
+    // ? It is used to find number of strongly connected components in a graph.
+    // ? It converts cyclic graph into acyclic graph.
+
+    // Wo component jisme aap har vertex ka use karke har vertex tak reach kar paa
+    // rahe ho.
+
+    // # To ye Strongly connected components banate hain.
+
+    // A single vertex is a strongly connected component.
+
+    // 1. Find the topological order (With post Order)
+    // 2. Find the inverse of the graph
+    // 3. Run the Dfs on the topological order of the original graph on the inverse
+    // graph.
+
+    // ! Important Point :
+
+    // # Jab mai graph ko inverse karta hun na, bas cycle ko farak nhi padta, baki
+    // # sabko farak padta hai.
+
+    // To ab jab mai original graph ke topological order ko mante hue mai dfs run
+    // karunga inverse wale graph mai to jo single roads hongi wo rasta rok denge
+    // ` baki aur cycles ko access karne ka.
+
+    // ! Important point :
+
+    // # When we studied topological order,we found out that when there is cycle
+    // # present, dfs does not give the right answer. So why used here ?
+
+    // Humko dfs traversal wali cheez to shi bata raha hota hai. Matlab isse besahq
+    // topological order galat aayega, per jab humne graph ko reverse kiya, to cycle
+    // ko koi farak nhi pada.
+
+    // ! Steps for KosaRaju algo
+
+    // 1. Find the topological order from postorder.
+    // 2. Inverse the graph
+    // 3. Using that topological order, again call dfs and get the scc count.
+
+    // # scc : - Strongly Connected Components
+    public static void dfs_01(int src, ArrayList<Edge>[] graph, boolean[] vis, LinkedList<Integer> st) { // To get the
+                                                                                                         // postorder
+                                                                                                         // topological
+                                                                                                         // order.
+        vis[src] = true;
+        for (Edge e : graph[src]) {
+            if (!vis[e.v])
+                dfs_01(e.v, graph, vis, st);
+        }
+
+        st.addFirst(src);
+    }
+
+    public static void dfs_02(int src, ArrayList<Edge>[] graph, boolean[] vis) { // Just to traverse to each scc
+                                                                                 // component
+        vis[src] = true;
+        for (Edge e : graph[src]) {
+            if (!vis[e.v])
+                dfs_02(e.v, graph, vis);
+        }
+    }
+
+    public static void KosaRajuAlgo(int n, ArrayList<Edge>[] graph) {
+        boolean[] vis = new boolean[n];
+        LinkedList<Integer> st = new LinkedList<>(); // Created a stack to store the topological order.
+
+        for (int i = 0; i < n; i++) {
+            if (!vis[i])
+                dfs_01(i, graph, vis, st);
+        }
+
+        // Inverse Of a graph
+        ArrayList<Edge>[] nGraph = new ArrayList[n]; // Inverse the graph so that one cycle may not reach other.
+        for (int i = 0; i < n; i++) {
+            for (Edge e : graph[i]) {
+                int v = e.v, wt = e.w;
+                nGraph[v].add(new Edge(i, wt));
+            }
+        }
+
+        int scc = 0; // To maintain scc count
+        vis = new boolean[n]; // Created a new visited
+        while (st.size() != 0) { // So now we will start traversing vertex as stored in stack. (The topological
+                                 // order)
+            int vtx = st.removeFirst();
+            if (!vis[vtx]) {
+                dfs_02(vtx, nGraph, vis);
+                scc++;
+            }
+        }
+    }
+
+    // b <================== Mother Vertex ==================>
+    // https://practice.geeksforgeeks.org/problems/mother-vertex/1
+
+    // To maine wo last vertex nikala jisse graph traverse ho raha hai pura.
+
+    // Kyunki mai initially 0 se start kiya hai aur hum sequentially chal rahe hain
+    // to ye ensure karta hai ki mujhe vertex min he milega, agar multiple mother
+    // vertex hain to.
+
+    // To bas jaise he last vertex mili ab ye confirm karne ke liye ki wo mother
+    // vertex hai, pure graph ko dubara se traverse kareke size nikala. agar ab size
+    // equal aata hain total number of vertex ke, to matlab vertex mother vertex hai
+    
+    public static void dfs_motherVertex_01(int src, int V, ArrayList<ArrayList<Integer>> graph, boolean[] vis) {
+
+        vis[src] = true;
+        for (int vtx : graph.get(src)) {
+            if (!vis[vtx])
+                dfs_motherVertex_01(vtx, V, graph, vis);
+        }
+    }
+
+    public static int dfs_motherVertex_02(int src, int V, ArrayList<ArrayList<Integer>> graph, boolean[] vis) {
+
+        vis[src] = true;
+        int size = 0;
+        for (int vtx : graph.get(src)) {
+            if (!vis[vtx])
+                size += dfs_motherVertex_02(vtx, V, graph, vis);
+        }
+
+        return size + 1;
+    }
+
+    public static int findMotherVertex(int V, ArrayList<ArrayList<Integer>> graph) {
+        // Code here
+
+        boolean[] vis = new boolean[V];
+        int lastVertex = -1;
+        for (int i = 0; i < V; i++) {
+            if (!vis[i]) {
+                dfs_motherVertex_01(i, V, graph, vis);
+                lastVertex = i; // Since we are starting from 0, this ensures that we have smallest element at
+                                // the last that may traverse the whole graph
+            }
+        }
+
+        vis = new boolean[V];
+        int size = dfs_motherVertex_02(lastVertex, V, graph, vis);
+
+        return size == V ? lastVertex : -1;
+    }
+
 }

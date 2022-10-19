@@ -254,7 +254,7 @@ public class l004Algos {
             pair rn = pq.remove();
             int vtx = rn.src, wsf = rn.wsf;
 
-            if (vis[vtx]) // wsf>=dis[vtx] == > basically agar mera wsf dis[vtx] se bada ya equal hai to
+            if (vis[vtx]) // wsf>dis[vtx] == > basically agar mera wsf dis[vtx] se bada hai to
                           // mujhe distance array ko update karne ki jaroorat he nhi hai to continue kar
                           // do. To matlab cycle hai
                 continue;
@@ -929,4 +929,235 @@ public class l004Algos {
         pointPair ans = dis[er][ec]; // end mai answer return kara
         return ans.steps != (int) 1e8 ? ans.psf : "impossible";
     }
+
+    // b <=================== KosaRaju Algorithm =====================>
+    // ? It is used to find number of strongly connected components in a graph.
+    // ? It converts cyclic graph into acyclic graph.
+
+    // Wo component jisme aap har vertex ka use karke har vertex tak reach kar paa
+    // rahe ho.
+
+    // # To ye Strongly connected components banate hain.
+
+    // A single vertex is a strongly connected component.
+
+    // 1. Find the topological order (With post Order)
+    // 2. Find the inverse of the graph
+    // 3. Run the Dfs on the topological order of the original graph on the inverse
+    // graph.
+
+    // ! Important Point :
+
+    // # Jab mai graph ko inverse karta hun na, bas cycle ko farak nhi padta, baki
+    // # sabko farak padta hai.
+
+    // To ab jab mai original graph ke topological order ko mante hue mai dfs run
+    // karunga inverse wale graph mai to jo single roads hongi wo rasta rok denge
+    // ` baki aur cycles ko access karne ka.
+
+    // ! Important point :
+
+    // # When we studied topological order,we found out that when there is cycle
+    // # present, dfs does not give the right answer. So why used here ?
+
+    // Humko dfs traversal wali cheez to shi bata raha hota hai. Matlab isse besahq
+    // topological order galat aayega, per jab humne graph ko reverse kiya, to cycle
+    // ko koi farak nhi pada.
+
+    // b <====================== Path With Minimum Effort =======================>
+    // https://leetcode.com/problems/path-with-minimum-effort/
+
+    // Simple dijikstara lagaya.
+    public static class pathPair implements Comparable<pathPair> {
+        int r = 0, c = 0, absValue = 0;
+
+        pathPair(int r, int c, int absValue) {
+            this.r = r;
+            this.c = c;
+            this.absValue = absValue;
+        }
+
+        @Override
+        public int compareTo(pathPair p) {
+            return this.absValue - p.absValue;
+        }
+    }
+
+    public int minimumEffortPath(int[][] heights) { // b (90% effcient)
+
+        int n = heights.length, m = heights[0].length;
+        int er = n - 1, ec = m - 1;
+
+        PriorityQueue<pathPair> que = new PriorityQueue<>();
+        int[][] dir = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+
+        que.add(new pathPair(0, 0, 0)); // Initial jo absolute value hogi wo to 0 he hogi na
+        boolean[][] vis = new boolean[n][m];
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            while (size-- > 0) {
+                pathPair rn = que.remove();
+                int sr = rn.r, sc = rn.c, absValue = rn.absValue;
+
+                if (sr == er && sc == ec)
+                    return absValue;
+
+                if (vis[sr][sc])
+                    continue;
+
+                vis[sr][sc] = true;
+
+                for (int d = 0; d < dir.length; d++) {
+                    int r = sr + dir[d][0];
+                    int c = sc + dir[d][1];
+
+                    if (r >= 0 && c >= 0 && r < n && c < m) {
+                        if (!vis[r][c]) {
+                            que.add(new pathPair(r, c, Math.max(absValue, Math.abs(heights[sr][sc] - heights[r][c]))));
+                        }
+                    }
+                }
+
+            }
+        }
+        return -1;
+    }
+
+    // b Method 2 :
+
+    // ! Using the distance array concept (More efficient, 99.99 %) since it escapes
+    // ! few visits to vertexs
+
+    public int minimumEffortPath_(int[][] heights) {
+        int n = heights.length, m = heights[0].length;
+        int er = n - 1, ec = m - 1;
+
+        PriorityQueue<pathPair> que = new PriorityQueue<>();
+        int[][] dir = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+
+        que.add(new pathPair(0, 0, 0)); // Initial jo absolute value hogi wo to 0 he hogi na
+        int[][] dis = new int[n][m];
+        for (int i = 0; i < n * m; i++)
+            dis[i / m][i % m] = (int) 1e9;
+        dis[0][0] = 0;
+
+        while (que.size() != 0) {
+            int size = que.size();
+
+            while (size-- > 0) {
+                pathPair rn = que.remove();
+                int sr = rn.r, sc = rn.c, absValue = rn.absValue;
+
+                if (sr == er && sc == ec)
+                    return absValue;
+
+                if (absValue > dis[sr][sc])
+                    continue;
+
+                for (int d = 0; d < dir.length; d++) {
+                    int r = sr + dir[d][0];
+                    int c = sc + dir[d][1];
+                    if (r >= 0 && c >= 0 && r < n && c < m) {
+                        int newAbsValue = Math.max(absValue, Math.abs(heights[sr][sc] - heights[r][c]));
+                        if (newAbsValue < dis[r][c]) {
+                            que.add(new pathPair(r, c, newAbsValue));
+                            dis[r][c] = newAbsValue;
+                        }
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+
+    // b <============= Articulation Point ======================>
+
+    // # Koi aisa point jisko nikalne se ya hatane se mere graph ke number of
+    // # components increase karte hain, use articulation point bolte hain.
+
+    // Ek graph mai multiple articulation point ho sakta hain.
+
+    // Ek aisa edge jisko nikalke number of components increase ho jate hain to use
+    // articulation edge bolte hain
+
+    // ! How the question can be formed ?
+
+    // 1. Jaise ki manle bahut sari cities aapsa mai connected hain in a country aur
+    // war ho gayi. To war mai kisi city ke uper bomb gira diya. Ab meri country mai
+    // ek headquater city hai jahan se food supply hota hai. To kya hai bomb wali
+    // city ko chodke us country ke har ek city tak food pahuncha paunga?
+
+    // 2. Uper wale question aise bhi frame ho sakta hai ki two connecting cities
+    // ke pull pe bomb gira. Ab batao ki food har ek city tak pahunch payega.
+
+    // 3. Manlo bahut sare planets hain aur unka aapas mai communication ho raha
+    // hai. Ab ek metriod aaya aur kisi planet se aake takraya aur destroy hua. To
+    // kya abhi bhi sare planets ek dusre se communicate kar payenge???
+
+    // ! Important Points :
+
+    // # Discovery Time : Jab maine chalna start kiya, to kaunse vertex mai kis time
+    // # mai discover kiya
+
+    // ===> Jiski Discovery Pehle, wo jyada powerful
+    // ===> Jiski Discovery Badme, wo jyada weak
+
+    // # Low Time : Mai kis powerful person ko janta hun. (Tum apne se pehle kisi
+    // # powerfull person ko jante ho)
+    // ===> Iske bare mai hum tabhi sochenge jab hum backtrack karenge.
+
+    // ? Agar koi vertex mera parent nhi hai aur wo already visited hai aur mera
+    // ? neighbour hai to wo heiarchy mai mujse pehle/uper raha hoga.
+
+    // # Jitne dots ek vertex pe honge(denoting that it is a articulation point
+    // # w.r.t other vertex), the no. of components formed by removing that vertex
+    // # will be (dots + 1). In Code we have maintained AP array to calculate the
+    // # dots.
+
+    // ! Important Point :
+    // This will be only true for all vertex except the root vertex.
+
+    // ? The normal dfs call make the root a articulation point even if the number
+    // ? of call from it is just one, which is wrong so therefore we have to handle
+    // ? root differently
+
+    // Agar root se number of calls is more than one, then it is a articulation
+    // point, otherwise not. For example take a example of nodes in a single line.
+    // If the root node are the endpoints node, then those points cannot be the
+    // articulation points since removing them, the number of components does not
+    // increase.
+
+    // If the number of calls is greater than one, than the total number of
+    // components formed by removing the root is equal to the number of dots.
+    // Therefore due to this, AP[root]=-1 in code to gernalize for everyNode in the
+    // graph.
+
+    // ! Important Point :
+
+    // # Kyunki hume mostly sirf ye pucha jayega ki ye point articulation point hai
+    // # ki nhi, to hum boolean ka array use kar sakte hain aur wahan pe rootcalls
+    // # wali condition important ho jati hai root vale case ko handle karne mai
+
+    // ! Why have we compared with discovery time, not low time.
+
+    // In the notes section, consider the test case.
+    // Agar manle mai low time se compare karta hunto (5,2) ki jagah pe (5,0) hota.
+    // Similarly, (4,4) update hota (4,0) mai
+    // Similarly, (3,3) update hota (3,0) mai
+
+    // Ab agar tu (2,0) mai hota to tu (3,0) ko dekh ke ye sochta ki 3 ke pass aur
+    // koi rasta hai 0 tak pahunchne ka jo ki mujhse bhi powerful hai. To 3 ko meri
+    // need he nhi hai
+
+    // # But actual mai aisa to hai he nhi. 2 wo jaria hai jiski wajah se 3 uper
+    // # wale components se connected hai. Therefore ye galat hai.
+
+    // ? Isiliye hum discovery ko compare karte hain. Naki low time ko.
+
+    // ! Important Point :
+    // # Do articuation point ke beech mai ek articuation edge exist kare humesha ye
+    // # baat sach nhi hogi.Like in the below test case.
+
 }
