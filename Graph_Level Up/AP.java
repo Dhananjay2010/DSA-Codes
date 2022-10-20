@@ -1,6 +1,5 @@
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Arrays;
+import java.util.List;
 
 public class AP {
 
@@ -90,7 +89,6 @@ public class AP {
     // # Do articuation point ke beech mai ek articuation edge exist kare humesha ye
     // # baat sach nhi hogi.Like in the below test case.
 
-
     public static class Edge {
         int v, w;
 
@@ -111,7 +109,7 @@ public class AP {
 
     public static void dfs(int src, int par, ArrayList<Edge>[] graph) {
         disc[src] = low[src] = time;
-
+        vis[src] = true;
         for (Edge e : graph[src]) {
             if (!vis[e.v]) {
                 dfs(e.v, src, graph);
@@ -164,6 +162,206 @@ public class AP {
             }
 
         }
+    }
+
+    // b <=======Critical Connections in a Network ==================>
+    // https://leetcode.com/problems/critical-connections-in-a-network/
+
+    public static void criticalConnections_dfs(int src, int par, ArrayList<Integer>[] connections,
+            List<List<Integer>> ans) {
+        disc[src] = low[src] = time++;
+        vis[src] = true;
+        for (int v : connections[src]) {
+            if (!vis[v]) {
+                criticalConnections_dfs(v, src, connections, ans);
+                if (disc[src] < low[v]) {
+                    List<Integer> myAns = new ArrayList<>();
+                    myAns.add(src);
+                    myAns.add(v);
+                    ans.add(myAns);
+                }
+                low[src] = Math.min(low[src], low[v]);
+            } else if (v != par)
+                low[src] = Math.min(low[src], disc[v]);
+        }
+    }
+
+    public List<List<Integer>> criticalConnections(int n, List<List<Integer>> connections) {
+
+        List<List<Integer>> ans = new ArrayList<>();
+        time = 0;
+        vis = new boolean[n];
+        disc = new int[n];
+        low = new int[n];
+
+        ArrayList<Integer>[] graph = new ArrayList[n]; // Created our own graph from edges
+        for (int i = 0; i < n; i++) {
+            graph[i] = new ArrayList<>();
+        }
+
+        for (List<Integer> e : connections) {
+            int u = e.get(0), v = e.get(1);
+            graph[u].add(v);
+            graph[v].add(u);
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (!vis[i]) {
+                criticalConnections_dfs(i, -1, graph, ans);
+            }
+        }
+
+        return ans;
+    }
+
+    // b <================= Minimum Number of Days to Disconnect Island ==========>
+    // https://leetcode.com/problems/minimum-number-of-days-to-disconnect-island/
+
+    // ! Brute Force, passed since the test case and constraints are small.
+
+    public static void dfs_numsIsland(int sr, int sc, int[][] grid, int[][] dir, boolean[][] vis) {
+        vis[sr][sc] = true;
+
+        for (int d = 0; d < dir.length; d++) {
+            int r = sr + dir[d][0];
+            int c = sc + dir[d][1];
+
+            if (r >= 0 && c >= 0 && r < grid.length && c < grid[0].length && grid[r][c] == 1 && !vis[r][c]) {
+                dfs_numsIsland(r, c, grid, dir, vis);
+            }
+        }
+    }
+
+    public static int numOfIslands(int[][] grid) {
+        int n = grid.length, m = grid[0].length;
+        boolean[][] vis = new boolean[n][m];
+
+        int noOfIslands = 0;
+        int[][] dir = { { 1, 0 }, { -1, 0 }, { 0, -1 }, { 0, 1 } };
+        for (int i = 0; i < n * m; i++) {
+            int r = i / m, c = i % m;
+            if (!vis[r][c] && grid[r][c] == 1) {
+                dfs_numsIsland(r, c, grid, dir, vis);
+                noOfIslands++;
+            }
+        }
+
+        return noOfIslands;
+    }
+
+    public int minDays_(int[][] grid) {
+        int n = grid.length, m = grid[0].length;
+        int initialComponents = numOfIslands(grid);
+        if (initialComponents > 1 || initialComponents == 0)
+            return 0;
+
+        for (int i = 0; i < n * m; i++) {
+            int r = i / m, c = i % m;
+
+            if (grid[r][c] == 1) {
+                grid[r][c] = 0;
+                int noOfComponents = numOfIslands(grid);
+                if (noOfComponents > 1 || noOfComponents == 0)
+                    return 1;
+                grid[r][c] = 1;
+            }
+        }
+        return 2;
+    }
+
+    // B Optimized using the articulation Point
+
+    private static int[] low, disc;
+    private static int time = 0;
+    private static boolean[] vis;
+
+    public static int dfs_size(int idx, int[][] grid, boolean[] vis) {
+        int n = grid.length, m = grid[0].length;
+        int sr = idx / m, sc = idx % m;
+
+        vis[idx] = true;
+
+        int[][] dir = { { 1, 0 }, { -1, 0 }, { 0, -1 }, { 0, 1 } };
+        int count = 0;
+
+        for (int d = 0; d < dir.length; d++) {
+            int r = sr + dir[d][0];
+            int c = sc + dir[d][1];
+
+            if (r >= 0 && c >= 0 && r < grid.length && c < grid[0].length && grid[r][c] == 1 && !vis[r * m + c]) {
+                count += dfs_size(r * m + c, grid, vis);
+            }
+        }
+
+        return count + 1;
+    }
+
+    public static boolean tarjans(int src, int par, int[][] grid) {
+        int n = grid.length, m = grid[0].length;
+        disc[src] = low[src] = time++;
+        vis[src] = true;
+
+        int[][] dir = { { 1, 0 }, { -1, 0 }, { 0, -1 }, { 0, 1 } };
+
+        boolean res = false;
+        for (int d = 0; d < dir.length; d++) {
+            int sr = src / m, sc = src % m;
+
+            int r = sr + dir[d][0];
+            int c = sc + dir[d][1];
+
+            if (r >= 0 && c >= 0 && r < n && c < m && grid[r][c] == 1) {
+                int nbr = r * m + c;
+                if (!vis[nbr]) {
+                    res = res || tarjans(nbr, src, grid);
+                    if (disc[src] < low[nbr]) { // Yahan pe equal to sign nhi kiya use. Why? ==> Kyunki hume cycle wale
+                                                // structure ke liye bhi true return karna tha kyunki wahan pe do vertex
+                                                // ko nikal ke graph disconnected ban sakta hai. Example is of a square,
+                                                // removing the diagonal vertex will make component disconnected.
+                        return true;
+                    }
+                    low[src] = Math.min(low[nbr], low[src]);
+                } else if (nbr != par) {
+                    low[src] = Math.min(low[src], disc[nbr]);
+                }
+            }
+
+        }
+        return res;
+    }
+
+    public int minDays(int[][] grid) {
+        int n = grid.length, m = grid[0].length;
+
+        disc = new int[n * m];
+        low = new int[n * m];
+        vis = new boolean[n * m];
+        int root = -1;
+        int noOfComponents = 0, size = 0;
+        for (int i = 0; i < n * m; i++) {
+            int r = i / m, c = i % m;
+
+            if (grid[r][c] == 1 && !vis[i]) {
+                root = i;
+                size += dfs_size(i, grid, vis);
+                noOfComponents++;
+            }
+        }
+
+        if (noOfComponents == 0 || noOfComponents > 1) // Agar mera component 0 hai ya 1 ha se bada hai to mai already
+                                                       // disconnected hun, to 0 retun kardo
+            return 0;
+        else if (size <= 2) // Ab kyunki mai uper component ka check karke aaya hun to mai sure hun ki ab ek
+                            // he single component hai graph mai. To agar component ka size 1 ya 2 hua, to
+                            // ` utne he din lagte use disconnect karne mai jitna size hota.
+            return size;
+
+        vis = new boolean[n * m];
+        boolean res = tarjans(root, -1, grid);
+        return res ? 1 : 2; // Ab agar mujhe articulation point milta hai to mai to mai 1 return kardunga,
+                            // aur agar nhi milta hai to mai 2 return kardunga kyunki at most mera answer 2
+                            // ho sakta hai.
+
     }
 
 }
