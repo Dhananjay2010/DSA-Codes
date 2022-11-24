@@ -9,5 +9,6 @@ Topics covered are :-
 
 1. Trees
 2. Graph
+3. Dynamic Programming
 
 Suggestions are always welcomed:grinning:.
