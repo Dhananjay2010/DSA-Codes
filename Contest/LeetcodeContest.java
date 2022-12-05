@@ -153,4 +153,82 @@ public class LeetcodeContest {
 
         return totalOperation;
     }
+
+    // b <=========Is Subsequence============>
+    // https://leetcode.com/problems/is-subsequence/
+
+    // Simple. Dono character nikale. Bas ab check kiya agar dono equal hai to dono
+    // ke index ko increase kiya.
+
+    // Aur agar dono equal nhi hai to jis string mai dhundhna hai us string mai aage
+    // dhundhne ke liye uske index ko increase kiya.
+
+    public boolean isSubsequence(String str1, String str2) {
+
+        int n1 = str1.length(), n2 = str2.length();
+        int i = 0, j = 0;
+
+        while (i < n1 && j < n2) {
+            char ch1 = str1.charAt(i);
+            char ch2 = str2.charAt(j);
+
+            if (ch1 == ch2) {
+                i++;
+                j++;
+            } else {
+                j++;
+            }
+        }
+
+        return i == n1 ? true : false; // Ab agar i n1 ke equal ho jata hai , matlab puri string mil gayi.
+    }
+
+    // b<===========Append Characters to String to Make Subsequence=====>
+    // https://leetcode.com/problems/append-characters-to-string-to-make-subsequence/
+
+    // Same as above. Bas end mai difference return kar diya.
+    public int appendCharacters(String str2, String str1) {
+        int n1 = str1.length(), n2 = str2.length();
+        int i = 0, j = 0;
+
+        while (i < n1 && j < n2) {
+            char ch1 = str1.charAt(i);
+            char ch2 = str2.charAt(j);
+
+            if (ch1 == ch2) {
+                i++;
+                j++;
+            } else {
+                j++;
+            }
+        }
+
+        return n1 - i;
+    }
+
+    // b <============= Minimum Fuel Cost to Report to the Capital =========>
+    // https://leetcode.com/problems/minimum-fuel-cost-to-report-to-the-capital/
+
+    public long minimumFuelCost(ArrayList<ArrayList<Integer>> graph, int maxSeats, int seats, boolean[] vis, int src) {
+        vis[src] = true;
+
+        long minFuel = 0;
+        for (int e : graph.get(src)) {
+            minFuel += minimumFuelCost(graph, maxSeats, seats, vis, src);
+        }
+
+        return minFuel;
+
+    }
+
+    public long minimumFuelCost(int[][] roads, int seats) {
+
+        ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
+        for (int[] road : roads) { // To create graph
+            int u = road[0], v = road[1];
+            graph.get(u).add(v);
+            graph.get(v).add(u);
+        }
+        boolean[] vis = new boolean[graph.size()];
+    }
 }
