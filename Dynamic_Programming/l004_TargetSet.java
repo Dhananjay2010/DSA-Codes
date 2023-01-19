@@ -673,4 +673,228 @@ public class l004_TargetSet {
         return canPartitionKSubsets(nums, k, tar, 0, 0, vis);
     }
 
+    // B <============== Knight Probability in ChessBoard =====================>
+    // https://leetcode.com/problems/knight-probability-in-chessboard/description/
+
+    static int dirX[] = { 2, 1, -1, -2, -2, -1, 1, 2 };
+    static int dirY[] = { 1, 2, 2, 1, -1, -2, -2, -1 };
+
+    // ! Recursion :
+
+    // Maine sare 8 direction se pucha ki tum mujhe apne board ke andar rehne ki
+    // probability do. Ab agar mai unka sum kar dunga to mujhe merese un 8 direction
+    // ke andar rehne ki probability mil jaayegi. Ab jo mere naam ka move liya hoga,
+    // ` uski probability hogi sum/8.
+
+    public double knightProbability_recu(int n, int k, int sr, int sc) {
+
+        if (k == 0)
+            return 1.0;
+
+        double count = 0;
+        for (int d = 0; d < 8; d++) {
+            int r = sr + dirX[d];
+            int c = sc + dirY[d];
+
+            if (r >= 0 && c >= 0 && c < n && r < n) {
+                count += knightProbability_recu(n, k - 1, r, c);
+            }
+        }
+
+        return count / 8;
+    }
+
+    public double knightProbability_rec(int n, int k, int row, int column) {
+        return knightProbability_recu(n, k, row, column);
+    }
+
+    // ! Memoisation :
+    // # Curious case of 3-d dp since three variables are changing in recursion.
+    // k, row. column;
+
+    public double knightProbability_memo(int n, int k, int sr, int sc, double[][][] dp) {
+
+        if (k == 0)
+            return dp[k][sr][sc] = 1.0;
+
+        if (dp[k][sr][sc] != 0.0)
+            return dp[k][sr][sc];
+
+        double count = 0;
+        for (int d = 0; d < 8; d++) {
+            int r = sr + dirX[d];
+            int c = sc + dirY[d];
+
+            if (r >= 0 && c >= 0 && c < n && r < n) {
+                count += knightProbability_memo(n, k - 1, r, c, dp);
+            }
+        }
+
+        return dp[k][sr][sc] = count / 8.0;
+    }
+
+    public double knightProbability_memo(int n, int k, int row, int column) {
+        double[][][] dp = new double[k + 1][n + 1][n + 1];
+        return knightProbability_memo(n, k, row, column, dp);
+    }
+
+    // ! Observation and Tabulation :
+
+    // # Important point to note :
+    // Humne sr aur sc loop ko 0 se start kiya hai. kyunki direction array kahin bhi
+    // leke jaa sakta hai, therefore mujhe sari states ko evaluate karna compulsory
+    // hai.
+
+    // ? Therefore here, the memoisation works far much better than tabulation.
+
+    public double knightProbability_tabu(int N, int K, int SR, int SC, double[][][] dp) {
+
+        for (int k = 0; k <= K; k++) {
+            for (int sr = 0; sr <= N; sr++) {
+                for (int sc = 0; sc <= N; sc++) {
+                    if (k == 0) {
+                        dp[k][sr][sc] = 1.0;
+                        continue;
+                    }
+
+                    double count = 0;
+                    for (int d = 0; d < 8; d++) {
+                        int r = sr + dirX[d];
+                        int c = sc + dirY[d];
+
+                        if (r >= 0 && c >= 0 && c < N && r < N) {
+                            count += dp[k - 1][r][c]; // knightProbability_memo(n, k - 1, r, c, dp);
+                        }
+                    }
+
+                    dp[k][sr][sc] = count / 8.0;
+                }
+            }
+        }
+
+        return dp[K][SR][SC];
+    }
+
+    public double knightProbability(int n, int k, int row, int column) {
+        double[][][] dp = new double[k + 1][n + 1][n + 1];
+        return knightProbability_tabu(n, k, row, column, dp);
+    }
+
+    // b <================ Out of Boundary Path ====================>
+    // https://leetcode.com/problems/out-of-boundary-paths/description/
+
+    // ! Recursion :
+
+    // # Logic is same as above, with a little change.
+
+    int[][] dir = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
+    int mod = (int) (1e9) + 7;
+
+    public int findPaths_recu(int m, int n, int maxMove, int sr, int sc) {
+
+        if (maxMove == 0)
+            return 0;
+
+        int count = 0;
+
+        for (int d = 0; d < 4; d++) {
+            int r = sr + dir[d][0];
+            int c = sc + dir[d][1];
+
+            if (r >= 0 && c >= 0 && r < m && c < n) {
+                count = count % mod + findPaths_recu(m, n, maxMove - 1, r, c) % mod;
+            } else {
+                count += 1;
+            }
+        }
+
+        return count % mod;
+    }
+
+    public int findPaths_rec(int m, int n, int maxMove, int startRow, int startColumn) {
+        return findPaths_recu(m, n, maxMove, startRow, startColumn);
+    }
+
+    // ! Memoisation :
+
+    public long findPaths_memo(int m, int n, int maxMove, int sr, int sc, long[][][] dp) {
+        if (maxMove == 0)
+            return dp[maxMove][sr][sc] = 0;
+
+        if (dp[maxMove][sr][sc] != -1) // the mistake that you did was to not fill the dp initially with -1 since 0 can
+                                       // `be part of the answer
+            return dp[maxMove][sr][sc];
+
+        long count = 0;
+
+        for (int d = 0; d < 4; d++) {
+            int r = sr + dir[d][0];
+            int c = sc + dir[d][1];
+
+            if (r >= 0 && c >= 0 && r < m && c < n) {
+                count = count % mod + findPaths_memo(m, n, maxMove - 1, r, c, dp) % mod;
+            } else {
+                count = count % mod + 1;
+            }
+        }
+
+        return dp[maxMove][sr][sc] = count % mod;
+    }
+
+    public int findPaths_mem(int m, int n, int maxMove, int startRow, int startColumn) {
+        long[][][] dp = new long[maxMove + 1][m + 1][n + 1];
+        for (long[][] move : dp) {
+            for (long[] row : move) {
+                Arrays.fill(row, -1);
+            }
+        }
+
+        long ans = findPaths_memo(m, n, maxMove, startRow, startColumn, dp);
+        return (int) ans;
+    }
+
+    // ! Observation and Tabulation :
+
+    public long findPaths_tabu(int M, int N, int MAXMOVE, int SR, int SC, long[][][] dp) {
+
+        for (int maxMove = 0; maxMove <= MAXMOVE; maxMove++) {
+            for (int sr = 0; sr <= M; sr++) {
+                for (int sc = 0; sc <= N; sc++) {
+                    if (maxMove == 0) {
+                        dp[maxMove][sr][sc] = 0;
+                        continue;
+                    }
+
+                    long count = 0;
+
+                    for (int d = 0; d < 4; d++) {
+                        int r = sr + dir[d][0];
+                        int c = sc + dir[d][1];
+
+                        if (r >= 0 && c >= 0 && r < M && c < N) {
+                            count = count % mod + dp[maxMove - 1][r][c];
+                        } else {
+                            count = count % mod + 1;
+                        }
+                    }
+                    dp[maxMove][sr][sc] = count % mod;
+                }
+            }
+        }
+
+        return dp[MAXMOVE][SR][SC];
+    }
+
+    public int findPaths(int m, int n, int maxMove, int startRow, int startColumn) {
+        long[][][] dp = new long[maxMove + 1][m + 1][n + 1];
+        for (long[][] move : dp) {
+            for (long[] row : move) {
+                Arrays.fill(row, -1);
+            }
+        }
+
+        long ans = findPaths_tabu(m, n, maxMove, startRow, startColumn, dp);
+        return (int) ans;
+    }
+
 }
