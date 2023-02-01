@@ -206,29 +206,79 @@ public class LeetcodeContest {
         return n1 - i;
     }
 
-    // b <============= Minimum Fuel Cost to Report to the Capital =========>
-    // https://leetcode.com/problems/minimum-fuel-cost-to-report-to-the-capital/
+    // b <================= Minimum Cost to Split an Array ============>
+    // https://leetcode.com/problems/minimum-cost-to-split-an-array/description/
 
-    public long minimumFuelCost(ArrayList<ArrayList<Integer>> graph, int maxSeats, int seats, boolean[] vis, int src) {
-        vis[src] = true;
+    // # Maine current subarray ki value nikali aur bache hue array ko kaha tu apni
+    // # importance value leke aaja. Dono ko add karke maine min se compare kiya.
+    // # Ab aisa agar mai har ek value ke liye karunga, to mujhe min value mil
+    // # jayegi.
 
-        long minFuel = 0;
-        for (int e : graph.get(src)) {
-            minFuel += minimumFuelCost(graph, maxSeats, seats, vis, src);
+    // ! Recursion :
+
+    public int minCost_rec(int[] nums, int k, int si, int n) {
+
+        if (si >= n)
+            return 0;
+
+        int[] map = new int[n]; // To store the count of numbers,instead of using Hashmap, we used array which
+                                // is faster.
+        int count = 0;
+        int min = (int) (1e9);
+        for (int i = si; i < n; i++) {
+            int val = nums[i];
+            map[val]++;
+            if (map[val] == 2)
+                count += 2;
+            else if (map[val] > 2)
+                count++;
+
+            int currentArrImpValue = count + k;
+            int remainingArrImpValue = minCost_rec(nums, k, i + 1, n);
+
+            min = Math.min(min, currentArrImpValue + remainingArrImpValue);
         }
-
-        return minFuel;
-
+        return min;
     }
 
-    public long minimumFuelCost(int[][] roads, int seats) {
+    public int minCost_rec(int[] nums, int k) {
+        return minCost_rec(nums, k, 0, nums.length);
+    }
 
-        ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
-        for (int[] road : roads) { // To create graph
-            int u = road[0], v = road[1];
-            graph.get(u).add(v);
-            graph.get(v).add(u);
+    // ! Memoisation :
+
+    public int minCost_memo(int[] nums, int k, int si, int n, int[] dp) {
+        if (si >= n)
+            return dp[si] = 0;
+
+        if (dp[si] != -1)
+            return dp[si];
+
+        int[] map = new int[n];
+        int count = 0;
+        int min = Integer.MAX_VALUE; // Integer.MAX_VALUE isiliye liya since test was getting more than (int)(1e9)
+        for (int i = si; i < n; i++) {
+            int val = nums[i];
+            map[val]++;
+            if (map[val] == 2)
+                count += 2;
+            else if (map[val] > 2)
+                count++;
+
+            int currentArrImpValue = count + k;
+            int remainingArrImpValue = minCost_memo(nums, k, i + 1, n, dp);
+
+            min = Math.min(min, currentArrImpValue + remainingArrImpValue);
+
         }
-        boolean[] vis = new boolean[graph.size()];
+
+        return dp[si] = min;
+    }
+
+    public int minCost(int[] nums, int k) {
+        int n = nums.length;
+        int[] dp = new int[n + 1];
+        Arrays.fill(dp, -1);
+        return minCost_memo(nums, k, 0, n, dp);
     }
 }

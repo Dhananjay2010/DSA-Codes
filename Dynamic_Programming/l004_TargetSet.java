@@ -897,4 +897,109 @@ public class l004_TargetSet {
         return (int) ans;
     }
 
+    // b <=========== Mobile numeric keypad ==================>
+    // https://practice.geeksforgeeks.org/problems/mobile-numeric-keypad5456/1?utm_source=gfg&utm_medium=article&utm_campaign=bottom_sticky_on_article
+
+    // # Is question ko aise soch ki tereko N digit ke numbers banane hain har kisi
+    // # digit se start hone wale jo ki mobile phone ki mapping mai hote hain.
+
+    // To simply iske liye direction wale loop lagaya.
+
+    // ! Recursion :
+
+    public long getCount_rec(int sr, int sc, char[][] grid, int[][] dir, int N) {
+        // Your code goes here
+        if (N == 0)
+            return 1;
+
+        long count = 0;
+        for (int d = 0; d < dir.length; d++) {
+            int r = sr + dir[d][0];
+            int c = sc + dir[d][1];
+
+            if (r >= 0 && c >= 0 && r < grid.length && c < grid[0].length && grid[r][c] != '#' && grid[r][c] != '*') {
+                count += getCount_rec(r, c, grid, dir, N - 1);
+            }
+        }
+
+        return count;
+    }
+
+    public long getCount_rec(int N) {
+
+        char[][] grid = { { '1', '2', '3' },
+                { '4', '5', '6' },
+                { '7', '8', '9' },
+                { '*', '0', '#' } };
+
+        int[][] dir = { { 0, 0 }, { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } }; // Yahan pe {0,0} ko bhi rakha hai kyunki
+                                                                              // if N>1, to number apne sath jud kar bhi
+                                                                              // koi number bana sakta hai like "00" ,
+                                                                              // "88" etc. Taki apne liye bhi ek call
+                                                                              // lag jaye.
+
+        int n = grid.length, m = grid[0].length;
+
+        long count = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                char ch = grid[i][j];
+                if (ch != '#' && ch != '*')
+                    count += getCount_rec(i, j, grid, dir, N - 1); // yahan pe N -1 kiya taki is function mai uper if
+                                                                   // statement na lagana pade. if(N==1) return 10;
+            }
+        }
+
+        return count;
+
+    }
+
+    // ! Memoisation :
+
+    public long getCount(int sr, int sc, char[][] grid, int[][] dir, int N, long[][][] dp) {
+        // Your code goes here
+        if (N == 0)
+            return dp[N][sr][sc] = 1;
+
+        if (dp[N][sr][sc] != -1)
+            return dp[N][sr][sc];
+        long count = 0;
+        for (int d = 0; d < dir.length; d++) {
+            int r = sr + dir[d][0];
+            int c = sc + dir[d][1];
+
+            if (r >= 0 && c >= 0 && r < grid.length && c < grid[0].length && grid[r][c] != '#' && grid[r][c] != '*') {
+                count += getCount(r, c, grid, dir, N - 1, dp);
+            }
+        }
+
+        return dp[N][sr][sc] = count;
+    }
+
+    public long getCount(int N) {
+
+        char[][] grid = { { '1', '2', '3' },
+                { '4', '5', '6' },
+                { '7', '8', '9' },
+                { '*', '0', '#' } };
+
+        int[][] dir = { { 0, 0 }, { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
+
+        int n = grid.length, m = grid[0].length;
+        long[][][] dp = new long[N + 1][n + 1][m + 1];
+        for (long[][] move : dp) {
+            for (long[] d : move) {
+                Arrays.fill(d, -1);
+            }
+        }
+        long count = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                char ch = grid[i][j];
+                if (ch != '#' && ch != '*')
+                    count += getCount(i, j, grid, dir, N - 1, dp);
+            }
+        }
+        return count;
+    }
 }
