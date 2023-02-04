@@ -799,6 +799,220 @@ public class l006_cutType {
         return numTrees(1, n, dp);
     }
 
+    // b <==================== House Robber II ====================>
+    // https://leetcode.com/problems/house-robber-ii/description/
 
+    // # Faith :
 
+    // Merepe ek house aaya. ya to mai use rob karunga ya to use rob nhi karunga.
+    // Agar mai use rob karta hun, to mai next element ko rob nhi kar paaunga,
+    // isiliye si + 2 ki call lagayi hai.
+
+    // Agar mai use rob nhi karta hun to mai next element ko rob kar paaunga.
+    // isiliye si + 1 ki call lagayi hai.
+
+    // ! Recursion :
+
+    public int rob_rec(int[] nums, int si, int ei) {
+
+        if (si > ei)
+            return 0;
+
+        int currHouseRob = nums[si] + rob_rec(nums, si + 2, ei);
+        int currHouseNotRob = rob_rec(nums, si + 1, ei);
+
+        return Math.max(currHouseNotRob, currHouseRob);
+    }
+
+    public int rob_rec(int[] nums) {
+        int n = nums.length;
+        if (n == 1)
+            return nums[0];
+
+        int excludingLastElement = rob_rec(nums, 0, n - 2);
+        int excludingFirstElement = rob_rec(nums, 1, n - 1);
+        return (Math.max(excludingLastElement, excludingFirstElement));
+    }
+
+    // ! Memoisation :
+
+    public int rob(int[] nums, int si, int ei, int[] dp) {
+
+        if (si > ei) // si out of range gaya, to house hai he nhi. rob value will be 0.
+            return 0;
+
+        if (dp[si] != -1)
+            return dp[si];
+        int currHouseRob = nums[si] + rob(nums, si + 2, ei, dp);
+        int currHouseNotRob = rob(nums, si + 1, ei, dp);
+
+        return dp[si] = Math.max(currHouseNotRob, currHouseRob);
+    }
+
+    public int rob(int[] nums) {
+        int n = nums.length;
+        if (n == 1)
+            return nums[0];
+
+        int[] dp1 = new int[n];
+        Arrays.fill(dp1, -1);
+
+        int[] dp2 = new int[n];
+        Arrays.fill(dp2, -1);
+
+        // Since the given houses are in circle. So therefore I cannot rob first and the
+        // last house at the same time.
+
+        // Isiliye maine pehle First house ko exclude kiya aur uska answer mangaya.
+        // Then maine last house ko exclude kiya aur uska answer mangaya and then dono
+        // mai jo max tha, maine use return kar diya.
+
+        // This is due to the above reason , that we have created the two dp.
+        // Kyunki hum range alag alag pass kar rahe hain. Ek mai 0th index ko exclude
+        // kiya aur ek mai n-1 index ko exclude kiya.
+
+        int excludingLastElement = rob(nums, 0, n - 2, dp1);
+        int excludingFirstElement = rob(nums, 1, n - 1, dp2);
+        return (Math.max(excludingLastElement, excludingFirstElement));
+    }
+
+    // b <============== House Robber I ===================>
+    // https://leetcode.com/problems/house-robber/description/
+
+    // # Logic is same as above.
+    // ! Recursion :
+
+    public int rob_re(int[] nums, int si, int ei) {
+
+        if (si > ei)
+            return 0;
+
+        int currHouseRob = nums[si] + rob_re(nums, si + 2, ei);
+        int currHouseNotRob = rob_re(nums, si + 1, ei);
+
+        return Math.max(currHouseNotRob, currHouseRob);
+    }
+
+    public int rob_re(int[] nums) {
+        int n = nums.length;
+        if (n == 1)
+            return nums[0];
+        return rob_re(nums, 0, n - 1);
+    }
+
+    // ! Memoisation :
+
+    public int rob_mem(int[] nums, int si, int ei, int[] dp) {
+
+        if (si > ei)
+            return 0;
+
+        if (dp[si] != -1)
+            return dp[si];
+        int currHouseRob = nums[si] + rob_mem(nums, si + 2, ei, dp);
+        int currHouseNotRob = rob_mem(nums, si + 1, ei, dp);
+
+        return dp[si] = Math.max(currHouseNotRob, currHouseRob);
+    }
+
+    public int rob_(int[] nums) {
+        int n = nums.length;
+        if (n == 1)
+            return nums[0];
+
+        int[] dp = new int[n];
+        Arrays.fill(dp, -1);
+        return rob_mem(nums, 0, n - 1, dp);
+    }
+
+    // b <============ 1388. Pizza With 3n Slices ==================>
+    // https://leetcode.com/problems/pizza-with-3n-slices/description/
+
+    // ! Recursion :
+
+    // The logic is same.
+    // I can only pick slices.length / 3 slices.
+
+    // Pehle sare points ko assume kar ki circle mai hai, aur jaise he maine koi
+    // slice pick kiya, circle shrink ho raha hai.
+    // For example : [1,2,3,4,5,6]
+
+    // Ab agar mai 1 pick kiya to mai 6 nhi pick kar sakta and vise versa.
+    // To mai do alag alag range pass karta hun. Aur dono mai max nikalke return
+    // karta hun.
+
+    // # Faith :
+
+    // Merepe do choices hai. Ya to mai slice pick kar sakta hun ya to mai nhi pick
+    // kar sakta.
+
+    // Agar mai pick karta hun to mai agli slice +2 wali he pick kar paunga.
+    // Aur agar mai nhi pick karta, to mai agli slice +1 wali pick kar sakta hun.
+
+    // To mai yahan pe sirf ek insaan ke bare mai he soch raha hun, jo hai Alice.
+    // ` Bob apne aap noOfSlices wale check se handle ho raha hai.
+
+    public int maxSizeSlices_rec(int[] slices, int si, int ei, int noOfSlices) {
+
+        if (si > ei || noOfSlices == 0)
+            return 0;
+        int pickSlice = slices[si] + maxSizeSlices_rec(slices, si + 2, ei, noOfSlices - 1);
+        int notPickSlice = maxSizeSlices_rec(slices, si + 1, ei, noOfSlices);
+
+        return Math.max(pickSlice, notPickSlice);
+    }
+
+    public int maxSizeSlices_(int[] slices) {
+        int n = slices.length;
+        int noOfSlices = n / 3;
+        // Since I cannot pick first and last slice both at the same time.
+        int pickFirstSlice = maxSizeSlices_rec(slices, 0, n - 2, noOfSlices);
+        int pickLastSlice = maxSizeSlices_rec(slices, 1, n - 1, noOfSlices);
+
+        return Math.max(pickFirstSlice, pickLastSlice);
+    }
+
+    // # Basic dry run :
+
+    // Array hai [1,2,3,4,5,6].
+    // Maine range pass ki (0,4)
+
+    // To pehle 1 pick hua. To mai 2 ko pick nhi kar sakta. aur 6 ko bhi.
+    // Iske baad jo array shrink hua (2,4). To ab wo isi mai koi next slice pick
+    // karega.
+    // To maine ab 3 pick kiya. to alice ne 4 pick kiya aur bob ne 5. Aise he sare
+    // combination check ho jeyenge.
+
+    // ! Memoisation :
+
+    public int maxSizeSlices(int[] slices, int si, int ei, int noOfSlices, int[][] dp) {
+
+        if (si > ei || noOfSlices == 0)
+            return 0;
+
+        if (dp[si][noOfSlices] != -1)
+            return dp[si][noOfSlices];
+        int pickSlice = slices[si] + maxSizeSlices(slices, si + 2, ei, noOfSlices - 1, dp);
+        int notPickSlice = maxSizeSlices(slices, si + 1, ei, noOfSlices, dp);
+
+        return dp[si][noOfSlices] = Math.max(pickSlice, notPickSlice);
+    }
+
+    public int maxSizeSlices(int[] slices) {
+        int n = slices.length;
+        int noOfSlices = n / 3;
+
+        int[][] dp1 = new int[n + 1][noOfSlices + 1];
+        for (int[] d : dp1)
+            Arrays.fill(d, -1);
+
+        int[][] dp2 = new int[n + 1][noOfSlices + 1];
+        for (int[] d : dp2)
+            Arrays.fill(d, -1);
+        // Since I cannot pick first and last slice both at the same time.
+        int pickFirstSlice = maxSizeSlices(slices, 0, n - 2, noOfSlices, dp1);
+        int pickLastSlice = maxSizeSlices(slices, 1, n - 1, noOfSlices, dp2);
+
+        return Math.max(pickFirstSlice, pickLastSlice);
+    }
 }
