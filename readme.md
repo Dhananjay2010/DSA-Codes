@@ -11,5 +11,7 @@ Topics covered are :-
 1. Trees
 2. Graph
 3. Dynamic Programming
+4. Stock Buy Sell and Game Theory
+
 
 Suggestions are always welcomed:grinning:.
