@@ -722,7 +722,47 @@ public class questions {
         return atMostKOddNumbers(nums, k) - atMostKOddNumbers(nums, k - 1);
     }
 
+    // ! Important Point :
 
-    // ! Important Point : 
+    // We can use logical & to know if the number is even or odd.
+
+    // 000 == > 0
+    // 001 == > 1
+    // 010 == > 2
+    // 011 == > 3
+    // 100 == > 4
+    // 101 == > 5
+    // 110 == > 6
+    // 111 == > 7
+
+    // If the number is even, its last bit digit is always 0.
+    // If the number is odd, its last bit digit is always 1.
+
+    // So the above question can also be solved as :
+
+    // # Logical & is so much faster than the % operator.
+    // ? Since the priority of bit operator are very less, don't forget to enclose
+    // ? them in brackets
+
+    public int atMostOdd(int[] arr, int k) {
+        int n = arr.length, si = 0, ei = 0, count = 0, ans = 0;
+        while (ei < n) {
+            if ((arr[ei++] & 1) != 0)
+                count++;
+
+            while (count > k) {
+                if ((arr[si++] & 1) != 0)
+                    count--;
+            }
+
+            ans += ei - si;
+        }
+
+        return ans;
+    }
+
+    public int numberOfSubarrays_(int[] nums, int k) {
+        return atMostOdd(nums, k) - atMostOdd(nums, k - 1);
+    }
 
 }
