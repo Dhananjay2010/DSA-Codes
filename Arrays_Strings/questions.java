@@ -665,7 +665,7 @@ public class questions {
     // (4-0) == > [1,2,1,2],[2,1,2], [1,2], [2];
 
     // To bas aise he count
-    
+
     // Agar frequency 0 hai to matlab, distinct element hai. To maine count ko
     // increase kiya. Aur agar 0 se jyada hai to bas uski frequecy increase ki.
 
@@ -693,25 +693,36 @@ public class questions {
     public int subarraysWithKDistinct(int[] nums, int k) {
         return withAtMostKDistinct(nums, k) - withAtMostKDistinct(nums, k - 1);
     }
+
     // b <=================1248. Count Number of Nice Subarrays =================>
     // https://leetcode.com/problems/count-number-of-nice-subarrays/
 
-    public int numberOfSubarrays(int[] nums, int k) {
+    // # The logic is same as above. No changes. Counting the subarray is same as
+    // # mentioned above.
 
-        int si = 0, ei = 0, count = 0, subArrayCount = 0, n = nums.length;
+    public static int atMostKOddNumbers(int[] nums, int k) {
 
+        int si = 0, ei = 0, count = 0, noOfSubArray = 0, n = nums.length;
         while (ei < n) {
-            if (nums[ei++] % 2 != 0)
+
+            if (nums[ei++] % 2 == 1)
                 count++;
 
-            while (count == k) {
-                subArrayCount++;
-                if (nums[si++] % 2 != 0)
+            while (count > k) {
+                if (nums[si++] % 2 == 1)
                     count--;
             }
-
+            noOfSubArray += ei - si;
         }
-        return subArrayCount;
+        return noOfSubArray;
     }
+
+    public int numberOfSubarrays(int[] nums, int k) {
+
+        return atMostKOddNumbers(nums, k) - atMostKOddNumbers(nums, k - 1);
+    }
+
+
+    // ! Important Point : 
 
 }
