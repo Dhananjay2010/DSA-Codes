@@ -765,4 +765,95 @@ public class questions {
         return atMostOdd(nums, k) - atMostOdd(nums, k - 1);
     }
 
+    // b <========================== Fruit Into Baskets =============>
+    // https://leetcode.com/problems/fruit-into-baskets/description/
+
+    // # Basically the question is to find longest interval with atmost two unique
+    // # elements.
+
+    // Same like Leetcode 159. Longest Substring with At Most Two Distinct
+    // Characters. The code is exactly same. Dry run and you will understand.
+
+    // Since it is given that Once you reach a tree with fruit that cannot fit in
+    // your baskets, you must stop. Yhi condition hai jo kehti hai ki lagataar 2
+    // elements he hone chahiye.
+
+    public int totalFruit(int[] fruits) {
+
+        int si = 0, ei = 0, maxFruits = 0, count = 0, n = fruits.length;
+        int[] freq = new int[n];
+
+        while (ei < n) {
+
+            if (freq[fruits[ei++]]++ == 0)
+                count++;
+
+            while (count > 2) {
+                if (freq[fruits[si++]]-- == 1)
+                    count--;
+            }
+
+            maxFruits = Math.max(maxFruits, ei - si);
+        }
+        return maxFruits;
+    }
+
+    // b <=============== 930. Binary Subarrays With Sum ===============>
+    // https://leetcode.com/problems/binary-subarrays-with-sum/description/
+
+    // Same like number of nice subArrays and Subarrays with K Different Integers
+
+    // Same logic of finding AtMost subarrays for K and K-1 values and then
+    // returning (k) - (k-1).
+
+    // ! Jahan pe bhi subarray mai bola ki exactly sum ke equal ya exactly itne
+    // ! integers, whan pe (k) - (k-1 ) us kar lena.
+
+    public int atMostSum(int[] nums, int goal) {
+
+        int si = 0, ei = 0, sum = 0, totalSubArray = 0, n = nums.length;
+
+        while (ei < n) {
+            sum += nums[ei++];
+
+            while (sum > goal) {
+                sum -= nums[si++];
+            }
+            totalSubArray += ei - si;
+        }
+        return totalSubArray;
+    }
+
+    public int numSubarraysWithSum(int[] nums, int goal) {
+        return atMostSum(nums, goal) - (goal - 1 > -1 ? atMostSum(nums, goal - 1) : 0);
+        // goal > -1 check when the actual goal is 0 , so the goal becomes -1 at the
+        // atMostFunction, which is not valid.
+    }
+
+    // b <=============== 2302. Count Subarrays With Score Less Than K ===========>
+    // https://leetcode.com/problems/count-subarrays-with-score-less-than-k/description/
+
+    // ! Same like Binary Subarrays With Sum. (Leetcode 930)
+
+    // # Yahan pe hume nikalna hai ki score AtMost K se kam hone chahiye. Bas Baki
+    // # logic is pura same.
+
+    public long countSubarrays(int[] nums, long k) {
+
+        int si = 0, ei = 0, n = nums.length;
+        long sum = 0, totalCount = 0;
+
+        while (ei < n) {
+            sum += nums[ei++];
+
+            while (sum * (ei - si) >= k) {
+                sum -= nums[si++];
+            }
+
+            totalCount += ei - si;
+        }
+
+        return totalCount;
+    }
+
 }
