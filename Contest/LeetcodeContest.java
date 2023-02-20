@@ -281,4 +281,132 @@ public class LeetcodeContest {
         Arrays.fill(dp, -1);
         return minCost_memo(nums, k, 0, n, dp);
     }
+
+    // b <======== 2571. Minimum Operations to Reduce an Integer to 0 ======>
+    // https://leetcode.com/problems/minimum-operations-to-reduce-an-integer-to-0/description/
+
+    // The general logarithm states that for every real number n, can be expressed
+    // in exponential form as. n = a^x (a to the power x).
+
+    // So Taking log on both sides
+    // log n= x (log a)
+
+    // so x= log n / log a;
+
+    // Here we have to represent the n in power of 2.
+    // So n = 2 ^ x;
+
+    // Now taking log on both sides,
+    // x= log(n)/ log(2);
+
+    // To ye x ki value is the approzimate value, if n is not a power of two.
+
+    // To hum ek lower power value nikalta hain 2 power x and ek just higher value
+    // nikalta hain x + 1.
+
+    // Aur unko n se subtract karte hain, jisse difference value aayegi, which will
+    // act as next n because ab is difference ko bhi 2 power x mai break karna hoga
+    // taki subtract karke answer 0 ke pass aaye.
+
+    // # Faith :
+
+    // maine kaha ki lowDiff mujhe apni min operation lake dede aur highDiff mujhe
+    // min operation lake dede. Jo dono mai se minimum hoga usme mai apni
+    // calculation ka 1 add kar dunga.
+
+    public int minOperations_(int n) {
+        int appPower = (int) (Math.log(n) / Math.log(2)); // Approx power
+
+        if (Math.pow(2, appPower) == n) { // if number a power of 2, return 1.
+            return 1;
+        }
+
+        int low = (int) (Math.pow(2, appPower));
+        int high = (int) (Math.pow(2, appPower + 1));
+
+        int lowDiff = n - low;
+        int highDiff = high - n;
+
+        return Math.min(minOperations(lowDiff), minOperations(highDiff)) + 1;
+    }
+
+    public int minOperations(int n) {
+        return minOperations_(n);
+    }
+
+    // ! Optimized :
+
+    // # Humko pata hai ki lowDiff mai aur highDiff mai jo choti value hogi, whi
+    // # mujhe answer degi since mujhe min operation chahiye. To maine whin ki call
+    // # lagayi jahan pe difference min hoga.
+
+    public int minOperations_Opti_(int n) {
+        int appPower = (int) (Math.log(n) / Math.log(2));
+
+        if (Math.pow(2, appPower) == n) {
+            return 1;
+        }
+
+        int low = (int) (Math.pow(2, appPower));
+        int high = (int) (Math.pow(2, appPower + 1));
+
+        int lowDiff = n - low;
+        int highDiff = high - n;
+
+        int min = 0;
+
+        if (lowDiff <= highDiff)
+            min = minOperations_Opti_(lowDiff);
+        else
+            min = minOperations_Opti_(highDiff);
+
+        return min + 1;
+    }
+
+    public int minOperations_Opti(int n) {
+        return minOperations_Opti(n);
+    }
+
+    // ! Using while loop
+
+    class Solution {
+        public:
+            int minOperations(int n) { // n=39
+               
+                int count=0;
+                 while( n!=0 ){
+                     
+                     // +1 becoz if n is a pefect power of 2, we can subtract that directly, so 1 operation for the subtraction
+                     if( n== pow(2, (int)log2(n)))
+                        return count+1;
+                     
+                     // low : power of 2 and <= n            high: power of 2 and >=n
+                     // lowdiff = differnce between n and low
+                     // highdiff = difference between high and n
+                     
+                     int low = pow(2, (int)log2(n));
+                     int high = pow(2, (int)log2(n)+1);
+                     int lowdiff = n - low; // 7
+                     int highdiff = high - n; //25
+        
+                    // we will always move towards the closer power of 2
+                    // for eg: if lowdiff = 7 and highdiff=25, our next target(n)= 7
+                    // now in the next iteration : 
+                     //                          low =2^2(4),
+                     //                          n = 7, &
+                     //                          high = 2^3(8)
+                     // and we move towards 8 ,ie, do a +1 to reach 8, instead of a -3 to reach 4
+                     // becoz we want to get to any perfect power of 2 as quickly as possible
+                     if( lowdiff < highdiff)
+                         n=lowdiff;
+                    
+                     else
+                         n=highdiff;
+                    
+                     ++count;  
+                 }
+               
+                return count;
+            }
+    };
 }
