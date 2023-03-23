@@ -1410,7 +1410,7 @@ public class questions {
     // # Deque has all property of queue. But one extra property, we can remove from
     // # last also, unlike queue.
 
-    // # Sabse bada element jo abhi tak mila hai wo front pe rahega. 
+    // # Sabse bada element jo abhi tak mila hai wo front pe rahega.
 
     public int[] maxSlidingWindow_ON(int[] nums, int k) {
         LinkedList<Integer> deque = new LinkedList<>();
