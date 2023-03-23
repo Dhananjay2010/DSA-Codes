@@ -12,6 +12,7 @@ Topics covered are :-
 2. Graph
 3. Dynamic Programming
 4. Stock Buy Sell and Game Theory
+5. Arrays and String.
 
 
 Suggestions are always welcomed:grinning:.
