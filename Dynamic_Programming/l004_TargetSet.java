@@ -1002,4 +1002,54 @@ public class l004_TargetSet {
         }
         return count;
     }
+
+    // b <============ 221. Maximal Square ===============>
+    // https://leetcode.com/problems/maximal-square/description/
+
+    // # Faith :
+
+    // Maine har ek 1 ko kaha ki ja jo tu apna maximum square bana sakta hai, tu
+    // ` uska length leke aaja. Mai sab mai se max nikalke area return kardunga.
+
+    // ? Ek square banane ke liye, kisi bhi 1 ke right side, right bottom diagonal
+    // ? aur bottom mai 1 hona chahiye. Agar kahin pe bhi 0 milta hai, to wo kabhi
+    // ? bhi square to nhi hoga. Per kyunki 1 akela bhi ek square hai to hum teeno
+    // ? direction ka min nikalke + 1 karke return kar denge.
+
+    public static int dfs(char[][] grid, int[][] dir, int sr, int sc, int[][] dp) {
+
+        if (dp[sr][sc] != -1)
+            return dp[sr][sc];
+        int size = (int) 1e9;
+        for (int d = 0; d < dir.length; d++) {
+            int r = sr + dir[d][0];
+            int c = sc + dir[d][1];
+
+            if (r >= 0 && c >= 0 && r < grid.length && c < grid[0].length && grid[r][c] == '1') {
+                size = Math.min(size, dfs(grid, dir, r, c, dp));
+            } else { // Agar koi call grid se bahar jati hai ya 0 ko jati hai, to wahan se to 0
+                     // return hoga.
+                size = Math.min(size, 0);
+            }
+        }
+        return dp[sr][sc] = size + 1; // +1 since agar dfs mai aaya hoga, to wo 1 se aaya hoga, to wo atleast single
+                                      // he ek square hoga
+    }
+
+    public int maximalSquare(char[][] grid) {
+
+        int n = grid.length, m = grid[0].length;
+        int[][] dp = new int[n][m];
+        for (int[] d : dp)
+            Arrays.fill(d, -1);
+        int maxArea = -(int) 1e9;
+        int[][] dir = { { 0, 1 }, { 1, 1 }, { 1, 0 } };
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == '1')
+                    maxArea = Math.max(maxArea, dfs(grid, dir, i, j, dp));
+            }
+        }
+        return maxArea == -(int) 1e9 ? 0 : maxArea * maxArea;
+    }
 }

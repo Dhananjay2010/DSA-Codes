@@ -372,7 +372,7 @@ public class LeetcodeContest {
     class Solution {
         public:
             int minOperations(int n) { // n=39
-               
+
                 int count=0;
                  while( n!=0 ){
                      
@@ -405,7 +405,6 @@ public class LeetcodeContest {
                     
                      ++count;  
                  }
-               
                 return count;
             }
     };

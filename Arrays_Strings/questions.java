@@ -1,4 +1,8 @@
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class questions {
 
@@ -470,6 +474,25 @@ public class questions {
         return len;
     }
 
+    // b <=============== 209. Minimum Size Subarray Sum ================>
+    // https://leetcode.com/problems/minimum-size-subarray-sum/description/
+
+    public int minSubArrayLen(int target, int[] nums) {
+
+        int n = nums.length;
+        int si = 0, ei = 0;
+        int sum = 0, minLen = (int) 1e9;
+        while (ei < n) {
+            sum += nums[ei++];
+            while (sum >= target) {
+                minLen = Math.min(minLen, ei - si);
+                sum -= nums[si++];
+            }
+        }
+
+        return minLen == (int) 1e9 ? 0 : minLen;
+    }
+
     // b <=============Longest K unique characters substring ================>
     // https://practice.geeksforgeeks.org/problems/longest-k-unique-characters-substring0853/1?utm_source=gfg&utm_medium=article&utm_campaign=bottom_sticky_on_article
 
@@ -852,8 +875,988 @@ public class questions {
 
             totalCount += ei - si;
         }
-
         return totalCount;
+    }
+
+    // b <=========== 485. Max Consecutive Ones ============>
+    // https://leetcode.com/problems/max-consecutive-ones/
+
+    // Same logic as above.
+    // Jaise he 0 mila, window ko shrink kara jab tak wo dubara valid nhi ho jati.
+    // Aur agar window valid hai to ei ++ karte raho, aur niche length ki update
+    // karte raho.
+
+    public int findMaxConsecutiveOnes(int[] nums) {
+
+        int si = 0, ei = 0, len = 0, count = 0, n = nums.length;
+
+        while (ei < n) {
+            if (nums[ei++] == 0)
+                count++;
+
+            while (count == 1) {
+                if (nums[si++] == 0)
+                    count--;
+            }
+            len = Math.max(len, ei - si);
+        }
+
+        return len;
+    }
+
+    // ! More Optimized :
+
+    // # Hume pta chala ki jaise he 0 mila, si aur ei ko dono ko ek sath rakh do
+    // # next iteration mai. si ko ei tak traverse karne ki jarrorat he nhi hai.
+
+    public int findMaxConsecutiveOnes_02(int[] nums) {
+
+        int si = 0, ei = 0, len = 0, n = nums.length;
+
+        while (ei < n) {
+            if (nums[ei++] == 0)
+                si = ei;
+            len = Math.max(len, ei - si);
+        }
+
+        return len;
+    }
+
+    // b <================487 - Max Consecutive Ones II==============>
+    // https://leetcode.ca/2017-03-31-487-Max-Consecutive-Ones-II/
+
+    // # Is question ko aise reframe karo
+    // # Ek aisa sub array ki length batao ki bas ek he zero allowed hai sare 1 ke
+    // # sath.
+
+    public int findMaxConsecutiveOnes_II(int[] nums) {
+
+        int si = 0, ei = 0, len = 0, count = 0, n = nums.length;
+
+        while (ei < n) {
+            if (nums[ei++] == 0)
+                count++;
+            while (count == 2) {
+                if (nums[si++] == 0)
+                    count--;
+            }
+            len = Math.max(len, ei - si);
+        }
+
+        return len;
+    }
+
+    // b <================= 1004. Max Consecutive Ones III ============>
+    // https://leetcode.com/problems/max-consecutive-ones-iii/
+
+    // ? Same as . 487 - Max Consecutive Ones II
+    // # Isko aise consider karo ki aisa subarray ki length batani hai jisme ones ke
+    // # sath atmost k 0 ho sakte hain.
+
+    public int longestOnes(int[] nums, int k) {
+
+        int si = 0, ei = 0, len = 0, count = 0, n = nums.length;
+
+        while (ei < n) {
+            if (nums[ei++] == 0)
+                count++;
+
+            while (count > k) {
+                if (nums[si++] == 0)
+                    count--;
+            }
+
+            len = Math.max(len, ei - si);
+        }
+
+        return len;
+    }
+
+    // b <================ 974. Subarray Sums Divisible by K ==========>
+    // https://leetcode.com/problems/subarray-sums-divisible-by-k/description/
+
+    // Manle ek array hai aur uske do index hai. x1 and x2. (x2 > x1);
+    // a is the sum of the elements upto x1 and b is the sum of the elements upto
+    // x2.
+
+    // Agar a % k =y and b % k=y, iska matlab ye hoga ki (b-a) ke beech jitne bhi
+    // elements aaye hain, unka contribution is zero. Therefore ek subarray exist
+    // karta hai jo divisible hai k se (b - a).
+
+    // a + (b-a)=b
+    // (a + (b-a)) % k =b % k
+    // a % k + (b-a) % k = b % k;
+    // y + (b-a) % k = y
+
+    // (b-a) % k =0;
+
+    // # That can only happen if b-a is the multiple of k.
+    // # (k * (b-a) ) % k =0;
+
+    // Hume ye bhi pata hai ki agar hum kisi number ko k se modulus karte hain to
+    // `uski range, (0, k-1) tak hoti hai.
+
+    // To hum har ek remainder value ki frequency nikalenge aur unke combination
+    // nikalke sabko add kar denge.
+
+    // Jaise ki merepe 4 remainder ki frequency total 3 aayi , to total subarray jo
+    // divisible by k honge will be (3)(3-1)/2. Basically nC2. That will be 3.
+
+    // Hum ise remainder frequecy ke sath sath bhi calculate kar sakte hain.
+    // Manle mujhe 4 remainder, 3rd time mila, to ye wala 4 remainder pichele do 4
+    // ke sath he to combination bana sakta hai, isiliye +2 kardo answer mai.
+
+    // # One edge case :
+    // What if the array is 5,5,5,5,5;
+
+    // Then initially for first element, the answer shoulld be 1. because 5 itself
+    // is a subarray that is divisible by 5. Therefore rem[0]=1 initially rakha hai,
+    // ` baki remainder initially 0 honge.
+
+    // ? Aise he karte - karte answer create kiya.
+
+    // (a+b) % k= (a% k + b% k ) % k; == (a+b) % k= (a% k + b% k + k ) % k
+    // (a-b) % k= (a% k - (b % k + k)) % k;
+
+    // # here we can also store the index and print all the subarrays.
+    // # if the two points are x1 and x2, (x2 > x1), index will be (x1,x2];
+    // # including x2 and excluding x1.
+
+    public int subarraysDivByK(int[] arr, int k) {
+        int[] rem = new int[k];
+        int n = arr.length, ei = 0, sum = 0, ans = 0;
+        rem[0] = 1;
+        while (ei < n) {
+            sum += arr[ei++];
+            int r = (sum % k + k) % k;// + k for -ve sum so that it comes in range.
+
+            ans += rem[r];
+            rem[r]++;
+        }
+
+        return ans;
+    }
+
+    // ? what if we have to calculate the length of longest subarray divisible by k.
+
+    // Jo har remainder ki pehli occurance hogi, uske index ko store kar liye. To jo
+    // longest hogi wo first occurance index - last occurance index to hogi.
+
+    // 0 reminder ko -1 already rakha
+    // For test case 1,2,2,
+    // The sum array 1,3,5
+    // Remainder 1,3,0
+
+    // So the subarray will be 2 -(-1)=3
+
+    public int longestSubarraysDivByK(int[] arr, int k) {
+        int[] rem = new int[k];
+        int n = arr.length, ei = 0, sum = 0, len = 0;
+        Arrays.fill(rem, -2); // filled with -2 taki pata rahe ki first index mila ki nhi.
+        rem[0] = -1;
+        while (ei < n) {
+            sum += arr[ei];
+            int r = (sum % k + k) % k;
+
+            if (rem[r] == -2) // Agar first occurance hai index ki ko store kiya,
+                rem[r] = ei;
+            else // else length ko calculate kiya.
+                len = Math.max(len, ei - rem[r]);
+            ei++;
+        }
+
+        return len;
+    }
+
+    // ! Using hashmap :
+
+    public int subarraysDivByK_map(int[] arr, int k) {
+        HashMap<Integer, Integer> rem = new HashMap<>();
+        int n = arr.length, ei = 0, sum = 0, ans = 0;
+        rem.put(0, 1);
+        while (ei < n) {
+            sum += arr[ei++];
+            int r = (sum % k + k) % k;
+
+            ans += rem.getOrDefault(r, 0);
+            rem.put(r, rem.getOrDefault(r, 0) + 1);
+        }
+
+        return ans;
+    }
+
+    public int longestSubarraysDivByK_map(int[] arr, int k) {
+        HashMap<Integer, Integer> rem = new HashMap<>();
+        int n = arr.length, ei = 0, sum = 0, len = 0;
+        rem.put(0, -1);
+        while (ei < n) {
+            sum += arr[ei];
+            int r = (sum % k + k) % k;
+
+            rem.putIfAbsent(r, ei);
+            len = Math.max(len, ei - rem.get(r));
+            ei++;
+        }
+
+        return len;
+    }
+
+    // b <=============560. Subarray Sum Equals K ==================>
+    // https://leetcode.com/problems/subarray-sum-equals-k/description/
+
+    // Manle ek array hai aur uske do index hai. x1 and x2. (x2 > x1);
+    // a is the sum of the elements upto x1 and b+k is the sum of the elements upto
+    // x2.
+
+    // So jo elements aayenge x2 aur x1 ke beech mai, unka sum ke equal hoga.
+    // So the subarray will be (x1, x2], excluding the x1 index and including the x2
+    // index.
+
+    // To mai har index tak ka sum nikalta gaya aur maine us sum ke occurance ka
+    // count bhi store karta gaya.
+
+    // Maine dekha ki sum - k khain piche already present to nhi hai. Agar hai to
+    // ` uska jo count hoga wo mai subarray ke count mai add karta jaaunga. Maine
+    // aisa isiliye kiya kyunki agar sum - k agar already piche present hai, iska
+    // matlab wo ek aisa point hoga jisme agar mai k add karun to wo sum ke equal
+    // aayega. Matlab ye jo beech ka subarray hai, uska sum k hai.
+
+    // (sum - k) + (k) = sum;
+
+    // Humne Already 0 ko 1 rakha hashmap mai taki hume agar starting se ek aisa
+    // subarray mile jiska sum exactly k ke equal aaye to hum uska 1 add kardein.
+
+    // # Dry run on [9,4,20,3,10,5] with k =33,
+    // # Prefix sum [9,13,33,36,46,51];
+
+    // # SubArray formed : [9,4,20], [20,3,10];
+    // # index wise : [0,2], [2,4]
+
+    // # here we can also store the index and print all the subarrays.
+    // # if the two points are x1 and x2, (x2 > x1), index will be (x1,x2];
+    // # including x2 and excluding x1.
+
+    // ! Also here tow pointer approach will not work. Like we used k and k-1
+    // ! approach. This is due to the fact that on increasing the window,sum
+    // ! increase bhi kar sakta hai aur decrease bhi kar sakta hai. Why ? because
+    // ! there are -ve elements as well.
+
+    public int subarraySum(int[] nums, int k) {
+
+        HashMap<Integer, Integer> map = new HashMap<>();
+        int n = nums.length, ei = 0, sum = 0, totalSubArray = 0;
+        map.put(0, 1);
+        while (ei < n) {
+            sum += nums[ei++];
+            int diff = sum - k;
+            if (map.containsKey(diff))
+                totalSubArray += map.get(diff);
+
+            if (map.containsKey(sum)) {
+                map.put(sum, map.get(sum) + 1);
+            } else {
+                map.put(sum, 1);
+            }
+            // The above if else statement can be replaced by the below statement.
+            // map.put(sum,map.getOrDefault(sum,0)+1);
+        }
+
+        return totalSubArray;
+    }
+
+    // B <=============Subarrays with equal 1s and 0s============>
+    // https://practice.geeksforgeeks.org/problems/count-subarrays-with-equal-number-of-1s-and-0s-1587115620/1?utm_source=gfg&utm_medium=article&utm_campaign=bottom_sticky_on_article
+
+    // Logic ye hai ki replace 0 with -1.
+    // Ab same logic use karna hai.
+
+    // Agar do index ka sum same hai, to iska matlab ye hai unke beech ke elements
+    // ka contribution 0 hai. Therefore unke beech ke elements ek subarray
+    // ` banayenge, jiska total sum 0 hoga. Hence hume whi count karne hai since we
+    // have replaced 0 with -1 , so agar equal 0 or 1 hoge subarray mai to total sum
+    // 0 aayega.
+
+    static int countSubarrWithEqualZeroAndOne(int arr[], int n) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            if (arr[i] == 0)
+                arr[i] = -1;
+        }
+
+        int ei = 0, totalSubArray = 0, sum = 0;
+        map.put(0, 1);
+        while (ei < n) {
+            sum += arr[ei++];
+
+            if (map.containsKey(sum)) {
+                totalSubArray += map.get(sum);
+            }
+
+            map.put(sum, (map.get(sum) == null ? 0 : map.get(sum)) + 1);
+
+        }
+        return totalSubArray;
+    }
+
+    // # Bhaiya Code of same complexity
+
+    static int countSubarrWithEqualZeroAndOne_(int arr[], int n) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        map.put(0, 1);
+        int ei = 0, count = 0, sum = 0;
+
+        while (ei < n) {
+            int val = arr[ei++];
+            sum += val;
+            if (val == 0)
+                sum += -1;
+
+            count += map.getOrDefault(sum, 0);
+            map.put(sum, map.getOrDefault(sum, 0) + 1);
+        }
+
+        return count;
+    }
+
+    // b <===========525. Contiguous Array ==============>
+    // https://leetcode.com/problems/contiguous-array/description/
+
+    // Same uper wala concept. Bas hume yahan pe largest length niklani hai subarray
+    // ki. To sare sum ka first index karenge store or agar wo sum dubara khin pe
+    // repeat hua to uski length nikalke compare karte rahenge.
+
+    public int findMaxLength(int[] arr) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        int n = arr.length;
+        for (int i = 0; i < n; i++) {
+            if (arr[i] == 0)
+                arr[i] = -1;
+        }
+
+        int ei = 0, sum = 0, len = 0;
+        map.put(0, -1); //
+        while (ei < n) {
+            sum += arr[ei];
+            if (map.containsKey(sum)) {
+                len = Math.max(len, ei - map.get(sum));
+            } else {
+                map.put(sum, ei);
+            }
+            ei++;
+        }
+        return len;
+    }
+
+    // # Bhaiya Code of same complexity :
+
+    public int findMaxLength_(int[] arr) {
+
+        // rem, firstIndex
+        HashMap<Integer, Integer> map = new HashMap<>();
+        map.put(0, -1);
+        int n = arr.length, ei = 0, sum = 0, len = 0;
+
+        while (ei < n) {
+            int val = arr[ei];
+            sum += val;
+            if (val == 0)
+                sum += -1;
+
+            map.putIfAbsent(sum, ei); // if(map.find(sum) == map.end()) map[sum] = ei;
+            len = Math.max(len, ei - map.get(sum));
+            ei++;
+        }
+
+        return len;
+    }
+
+    // b <============== Sliding Window Maximum ===================>
+    // https://leetcode.com/problems/sliding-window-maximum/
+
+    // ! Time = > O(KN), Space : O(1)
+
+    // It gives TLE
+
+    // # Har ek Window ke liye max nikalte rahe in another loop.
+
+    public int[] maxSlidingWindow_KN(int[] nums, int k) {
+
+        int n = nums.length;
+        int[] ans = new int[n - k + 1];
+
+        int idx = 0;
+        for (int i = 0; i + k <= n; i++) {
+            int max = -(int) (1e9);
+            for (int j = i; j < i + k; j++) {
+                int val = nums[j];
+                max = Math.max(max, val);
+            }
+            ans[idx++] = max;
+        }
+        return ans;
+    }
+
+    // ! Time : O(NlogN), Space : O(N)
+
+    // # Main ek element ko uske index ke sath priority queue mai dalta rahunga. Ab
+    // # maine element nikala priority queue se. Agar us priority queue ke element
+    // # ka index meri window ke index ke andar aaata hai to whi mera max element
+    // # hai nhi to mai priority queue se elements nikalta rahunga.
+
+    // ! If doing this question in interview, use class pair instead of array as it
+    // ! is more easy to understand.
+
+    public int[] maxSlidingWindow(int[] nums, int k) {
+
+        int n = nums.length;
+        // index, value
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> {
+            return b[1] - a[1]; // To get max element according to the value.
+        });
+        for (int i = 0; i < k - 1; i++) {
+            int value = nums[i];
+            pq.add(new int[] { i, value });
+        }
+        int[] ans = new int[n - k + 1];
+        int idx = 0;
+        for (int i = 0; i + k <= n; i++) {
+            int startIndex = i, endIndex = i + k - 1;
+            int value = nums[endIndex];
+            pq.add(new int[] { endIndex, value });
+
+            while (pq.size() != 0 && pq.peek()[0] < startIndex) {
+                pq.remove();
+            }
+            ans[idx++] = pq.peek()[1];
+        }
+        return ans;
+    }
+
+    // ! Time : O(NlogN), Space : O(N)
+
+    // Same complexity, but slightly better code.
+    // Rather than adding an integer array in priority queue, add index.
+
+    // PriorityQueue<Integer> pq = new PriorityQueue<>((a, b) -> {
+    // return nums[b] - nums[a];
+    // # The above line makes does the same work. Will return index whose value is
+    // # largest.
+    // });
+
+    // Concept is same as above.
+
+    public int[] maxSlidingWindow_codeBetter(int[] nums, int k) {
+        PriorityQueue<Integer> pq = new PriorityQueue<>((a, b) -> {
+            return nums[b] - nums[a]; //
+        });
+
+        int n = nums.length, idx = 0;
+        int[] ans = new int[n - k + 1];
+        for (int i = 0; i < nums.length; i++) {
+            while (pq.size() != 0 && pq.peek() <= i - k)
+                pq.remove();
+
+            pq.add(i);
+
+            if (i >= k - 1)
+                ans[idx++] = nums[pq.peek()];
+        }
+        return ans;
+    }
+
+    // ! Time : O(Nlogk), Space : O(k)
+
+    // # Using TreeMap, At a time, in our map, we have at max k elements so the time
+    // # of retrival will be logK
+
+    public int[] maxSlidingWindow_TreeMap(int[] nums, int k) {
+
+        int n = nums.length, idx = 0;
+        int[] ans = new int[n - k + 1];
+
+        // value, frequency of the value
+        TreeMap<Integer, Integer> map = new TreeMap<>();
+
+        for (int i = 0; i < k - 1; i++) {
+            int value = nums[i];
+            if (map.containsKey(value)) {
+                map.put(value, map.get(value) + 1);
+            } else
+                map.put(value, 1);
+        }
+        for (int i = 0; i + k <= n; i++) {
+            int startIndex = i, endIndex = i + k - 1;
+            int value = nums[endIndex];
+            if (map.containsKey(value)) {
+                map.put(value, map.get(value) + 1);
+            } else
+                map.put(value, 1);
+
+            ans[idx++] = map.lastKey();
+            int notRequiredValue = nums[startIndex]; // Jaise he humne window ka max nikala, wiase he ab hume startIndex
+                                                     // ki requirement nhi hai, kyunki wo next window ka part nhi
+                                                     // `banega.
+            if (map.get(notRequiredValue) == 1)
+                map.remove(notRequiredValue);
+            else
+                map.put(notRequiredValue, map.get(notRequiredValue) - 1);// Agar repeated elements honge window mai, to
+                                                                         // `unki frequency jyada hogi. [5,5,5,5,5,5]
+        }
+        return ans;
+    }
+
+    // ! Time : O(N), Space : O(1)
+
+    // # Deque has all property of queue. But one extra property, we can remove from
+    // # last also, unlike queue.
+
+    // # Sabse bada element jo abhi tak mila hai wo front pe rahega. 
+
+    public int[] maxSlidingWindow_ON(int[] nums, int k) {
+        LinkedList<Integer> deque = new LinkedList<>();
+
+        int n = nums.length, idx = 0;
+        int[] ans = new int[n - k + 1];
+        for (int i = 0; i < nums.length; i++) {
+            while (deque.size() != 0 && deque.getFirst() <= i - k)
+                // Agar koi mera index window range se he bahar hai, to use remove he kardo,
+                // kyunki wo kabhi bhi mere window ka max nhi ho sakta.
+                deque.removeFirst();
+
+            while (deque.size() != 0 && nums[i] >= nums[deque.getLast()])
+                // Agar koi index aisa aaya jiski value greater hai deque mai rakhi hui index ki
+                // value se, to jo rakhi hui value hai wo kabhi khi bhi aane wali windom mai max
+                // nhi hogi, to use remove kardo.
+                deque.removeLast();
+
+            deque.addLast(i);
+
+            if (i >= k - 1)
+                ans[idx++] = nums[deque.getFirst()];
+        }
+        return ans;
+    }
+
+    // ! Kadanes Algo
+
+    // # It is used to get max-subarray sum in an array.
+
+    // ? Case 1 : [-1,-7,-8,-9] -> max sum Subarray is 0(no subarray exist);
+
+    // # Jab tak mera sum 0 nhi hota, mai us umeeed mai aage badta rahunga ki muhje
+    // # koi aage +ve number mil jaye jiski wajah se mera sum greater ho jaye.
+
+    // # Jaise he mujhe zero mila, ab jo current subarray hai uska contribution to
+    // # zero hai. To us subarray mai add karne ki jaroorat he nhi hai. Next
+    // # iteration se nya subarray ka sum start karenge.
+
+    // Agar sirf -ve elements hain array mai to answer 0 aayega.
+    // Test case to dry run : [-2,-3,4,-1,-2,1,5,-3]
+    public static int kadanesAlgo(int[] arr) {
+        int gSum = 0, currSum = 0;
+        for (int ele : arr) {
+            currSum += ele;
+            if (currSum > gSum)
+                gSum = currSum;
+            if (currSum <= 0)
+                currSum = 0;
+        }
+        return gSum;
+    }
+
+    // ! Now what if I wanted to get the subarray :
+
+    public static int kadanesAlgo_SubArray(int[] arr) {
+
+        int gSum = 0, currSum = 0, gsi = 0, gei = 0, csi = 0;
+        for (int i = 0; i < arr.length; i++) {
+            int ele = arr[i];
+            currSum += ele;
+            if (currSum > gSum) {
+                gSum = currSum;
+                gsi = csi;
+                gei = i;
+            }
+
+            if (currSum <= 0) {
+                currSum = 0;
+                csi = i + 1;
+            }
+        }
+
+        return gSum;
+    }
+
+    // ? Case 2 : when -ve number can be maximum
+
+    // [-1,-7,-8,-9] -> max sum Subarray if -1 (0,0);
+    public static int kadanesAlgoGeneric(int[] arr) {
+        int gSum = -(int) 1e9, cSum = 0;
+        for (int ele : arr) {
+            cSum = Math.max(ele, cSum + ele);
+            gSum = Math.max(gSum, cSum);
+        }
+
+        return gSum;
+    }
+
+    public static int[] kadanesAlgoGenericSubarray(int[] arr) {
+        int gSum = -(int) 1e9, cSum = 0, gsi = 0, gei = 0, csi = 0;
+        for (int i = 0; i < arr.length; i++) {
+            int ele = arr[i];
+            cSum += ele;
+            if (ele >= cSum) {
+                cSum = ele;
+                csi = i;
+            }
+
+            if (cSum > gSum) {
+                gSum = cSum;
+                gsi = csi;
+                gei = i;
+            }
+        }
+
+        return new int[] { gSum, gsi, gei };
+    }
+
+    // b <=============== K-Concatenation Maximum Sum ==============>
+    // https://leetcode.com/problems/k-concatenation-maximum-sum/
+
+    // Kadanes algo chalaya k=3 tak ek liye. Ab agar uske baad koi 3 se bada k hoga,
+    // to uske liye jo formula derive kiya hai wo laga diya.
+
+    // Yahan pe teen cases ho sakte hain :
+
+    // 1. Jab k=1 ke liye thoda arraya contribute kare s1, k=2 ke liye s1 + s2
+    // contribute kare, k=3 ke liye s1 + s2 + x contribute kare.
+    // 2. Pura Array contribute kare
+    // 3. Ki thoda array contribute kare. Aur kitne bhi array concat ho jayein, utna
+    // he contribution aayega.
+
+    static int mod = (int) 1e9 + 7;
+
+    public int kadanesSum(int[] arr, int k) {
+        int n = arr.length;
+        long gsum = 0, csum = 0;
+        int mod = (int) 1e9 + 7;
+
+        for (int i = 0; i < k * n; i++) {
+            int ele = arr[i % n];
+            csum += ele;
+
+            if (csum > gsum)
+                gsum = csum;
+            if (csum <= 0)
+                csum = 0;
+        }
+
+        return (int) gsum % mod;
+    }
+
+    public int kConcatenationMaxSum(int[] arr, int k) {
+        long prevSum = 0, sum = 0;
+        for (int i = 1; i <= 3; i++) {
+            prevSum = sum;
+            sum = kadanesSum(arr, i);
+
+            if (i == k)
+                return (int) sum;
+        }
+
+        return (int) ((prevSum + (k - 2) * (sum - prevSum)) % mod);
+    }
+
+    // b <=============== Maximum sum Rectangle =================>
+    // https://practice.geeksforgeeks.org/problems/maximum-sum-rectangle2948/1?utm_source=gfg&utm_medium=article&utm_campaign=bottom_sticky_on_article
+
+    // # Yahan pe bhi same kadanes algo use kiya hai, jisme answer -ve bhi aata hai.
+
+    // [[1,2,-1,-4,-20],
+    // [-8,-3,4,2,1],
+    // [3,8,10,1,3],
+    // [-4,-1,1,7,-6]]
+
+    // Ek rectangle tabhi create hota hai, jab uske angle 90 degree ke hote hain.
+    // To basically maine har ek rectangle ka sum nikalke, usme kadane algo lagayi
+    // taki mujhe max sum mike us rectangle ka.
+
+    // Aur aisa maine har ek possible rectangle ke sath kiya.
+
+    // Sare rectangle nikalne ke liye maine pehle pehle top row ko fix kiya, aur
+    // ` bottom tak jitne bhi rectangle create ho sakte the, unpe kadanes algo
+    // chalayi.
+
+    // Next iteration mai maine same 2nd row ko fix kiya aur end row tak jitne bhi
+    // rectangle create ho sakte the sabpe kadanes algo chalayi.
+
+    // Aisa maine sabke liye kiya aur end mai max return kar diya.
+
+    // # Important point :
+
+    // Agar row 1 aur row 2 se ek pura rectangle create hota hai to, kadanes ke liye
+    // ` uske jo array aayego wo dono row ke same index ke elements ke sum ka array
+    // aayega
+
+    public static int kadanesAlgoForNegative(int[] arr) {
+        int gSum = -(int) 1e9, cSum = 0;
+        for (int ele : arr) {
+            cSum = Math.max(ele, cSum + ele);
+            gSum = Math.max(gSum, cSum);
+        }
+
+        return gSum;
+    }
+
+    // Time Complxity : T(n*m*n)
+    int maximumSumRectangle(int R, int C, int arr[][]) {
+        int n = R, m = C, maxSum = -(int) 1e9;
+        for (int fixRow = 0; fixRow < n; fixRow++) { // Fixing row
+            int[] colPrefixSum = new int[m];
+
+            for (int row = fixRow; row < n; row++) {
+                for (int col = 0; col < m; col++)
+                    colPrefixSum[col] += arr[row][col]; // Creating array ko kadanes
+
+                int sum = kadanesAlgoForNegative(colPrefixSum);
+                maxSum = Math.max(maxSum, sum);
+
+            }
+        }
+
+        return maxSum;
+    }
+
+    // ! if we want to print matrix
+
+    // # Simple kadanes se max sum ka index mangaya aur values ko update mar diya.
+    int maximumSumRectangle_02(int R, int C, int arr[][]) {
+        int n = R, m = C, maxSum = -(int) 1e9;
+        int[] colPrefixSum = new int[m];
+
+        int r1 = 0, c1 = 0, r2 = 0, c2 = 0;
+
+        for (int fixRow = 0; fixRow < n; fixRow++) {
+
+            Arrays.fill(colPrefixSum, 0);
+
+            for (int row = fixRow; row < n; row++) {
+                for (int col = 0; col < m; col++)
+                    colPrefixSum[col] += arr[row][col];
+
+                int[] res = kadanesAlgoGenericSubarray(colPrefixSum);
+                if (res[0] >= maxSum) {
+                    maxSum = res[0];
+                    r1 = fixRow;
+                    c1 = res[1];
+                    r2 = row;
+                    c2 = res[2];
+                }
+            }
+        }
+
+        for (int i = r1; i <= r2; i++) {
+            for (int j = c1; j <= c2; j++) {
+                System.out.print(arr[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+        return maxSum;
+    }
+
+    // b <============ 85. Maximal Rectangle ============>
+    // https://leetcode.com/problems/maximal-rectangle/description/
+
+    // # Logic is same as above;
+
+    public static int getMaxArea(int[] arr) {
+        int maxArea = 0, sum = 0;
+
+        for (int ele : arr) {
+            if (ele == 0)
+                sum = 0;
+            else
+                sum += ele;
+            maxArea = Math.max(maxArea, sum);
+        }
+
+        return maxArea;
+    }
+
+    public int maximalRectangle(char[][] arr) {
+
+        int n = arr.length, m = arr[0].length;
+        int total = 0;
+        for (int fixRow = 0; fixRow < n; fixRow++) {
+            int[] colPrefixSum = new int[m];
+            for (int row = fixRow; row < n; row++) {
+                for (int col = 0; col < m; col++) {
+                    if (row == fixRow) {
+                        colPrefixSum[col] += arr[row][col] - '0';
+                    } else {
+                        if (colPrefixSum[col] == 0)
+                            continue;
+                        else if (arr[row][col] == '0')
+                            colPrefixSum[col] = 0;
+                        else
+                            colPrefixSum[col] += 1;
+                    }
+                }
+
+                total = Math.max(total, getMaxArea(colPrefixSum));
+            }
+        }
+
+        return total;
+    }
+
+    // b <=========== 1074. Number of Submatrices That Sum to Target =============>
+    // https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/description/
+
+    // # Concept is used same as above.
+    // Pehle ek row ko fix kiya, sare combination nikale sum row ko add karke aur
+    // har ek ke liye subArraySumEqualK call kiya.
+
+    // End mai total sum return kar diya.
+
+    // ! Important point :
+
+    // ? Agar khin bhi matrix sum ya rectange sum pucha jaye, to ye fix row wala
+    // ? logic use kar sakte hain.
+
+    public static int subArraySumEqualK(int[] arr, int tar) { // Ek array mai wo sare subarray nikale jinka sum tar ke
+                                                              // equal ho. Same as Leetcode 560
+        HashMap<Integer, Integer> map = new HashMap<>();
+        int sum = 0, totalSubArray = 0;
+        map.put(0, 1);
+        for (int ele : arr) {
+            sum += ele;
+            int diff = sum - tar;
+
+            if (map.containsKey(diff))
+                totalSubArray += map.get(diff);
+            if (map.containsKey(sum))
+                map.put(sum, map.get(sum) + 1);
+            else
+                map.put(sum, 1);
+
+        }
+        return totalSubArray;
+    }
+
+    public int numSubmatrixSumTarget(int[][] arr, int tar) {
+
+        int n = arr.length, m = arr[0].length;
+        int total = 0;
+        for (int fixRow = 0; fixRow < n; fixRow++) {
+            int[] colPrefixSum = new int[m];
+            for (int row = fixRow; row < n; row++) {
+                for (int col = 0; col < m; col++) {
+                    colPrefixSum[col] += arr[row][col];
+                }
+
+                total += subArraySumEqualK(colPrefixSum, tar);
+            }
+        }
+
+        return total;
+    }
+
+    // b <========= 781. Rabbits in Forest ===========>
+    // https://leetcode.com/problems/rabbits-in-forest/description/
+
+    // [10,10,10]
+
+    // For the above test case, there can be total 11 people that can say that they
+    // have another 10 that have the same colour.
+
+    public int numRabbits(int[] answers) {
+        int[] ans = new int[10001];
+        int minRabbits = 0;
+        for (int ele : answers) {
+            if (ans[ele] == 0) // If first occurance, then there will be minimum that ele + 1 amount of rabbit.
+                               // +1 for mine.
+                minRabbits += ele + 1;
+            ans[ele]++;
+
+            if (ans[ele] == ele + 1) { // If the total ele frequency has reached the ele + 1, then the all the people
+                                       // have been found. If now someone claims to have same ele value, then it will
+                                       // definitely be of another color.
+                ans[ele] = 0;
+            }
+        }
+
+        return minRabbits;
+    }
+
+    public int numRabbits_(int[] arr) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        int n = arr.length, ans = 0;
+
+        for (int ele : arr) {
+
+            if (!map.containsKey(ele)) {
+                ans += 1 + ele;
+                map.put(ele, 1);
+            } else {
+                map.put(ele, map.get(ele) + 1);
+            }
+
+            if (map.get(ele) == ele + 1) {
+                map.remove(ele);
+            }
+        }
+
+        return ans;
+    }
+
+    public int kadanesAlgoWithSumUnderK(int[] arr, int k) {
+        int gsum = -(int) 1e9, csum = 0;
+        for (int ele : arr) {
+            csum += ele;
+            csum = Math.max(csum, ele);
+            gsum = Math.max(gsum, csum);
+
+            if (gsum >= k)
+                return gsum;
+        }
+
+        return gsum;
+    }
+
+    public int maxSumSubmatrix(int[][] arr, int k) {
+        int n = arr.length, m = arr[0].length;
+        int maxRes = 0;
+
+        for (int fixedRow = 0; fixedRow < n; fixedRow++) {
+
+            int[] prefixColArray = new int[m];
+            for (int row = fixedRow; row < n; row++) {
+                for (int col = 0; col < m; col++)
+                    prefixColArray[col] += arr[row][col];
+
+                int sum = kadanesAlgoWithSumUnderK(prefixColArray, k);
+
+                if (sum == k)
+                    return sum;
+                else if (sum < k) {
+                    maxRes = Math.max(maxRes, sum);
+                    continue;
+                }
+
+                // ????
+                // # We have to add the condition if the kadanes sum is greater than k
+                // For Test case :
+
+                // [2,2,-1] with k=0, the ans will be -1.
+                // [2,2,-2,1] with k=0, the ans will be -1.
+
+            }
+        }
+
+        return maxRes;
+
     }
 
 }
