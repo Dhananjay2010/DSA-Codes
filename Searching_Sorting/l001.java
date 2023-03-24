@@ -153,4 +153,6 @@ public class l001 {
         return data - arr[ei] <= arr[si] - data ? arr[ei] : arr[si];
     }
 
+    
+
 }
