@@ -1520,6 +1520,18 @@ public class questions {
         return new int[] { gSum, gsi, gei };
     }
 
+    // b <================= 53. Maximum Subarray ==============>
+    // https://leetcode.com/problems/maximum-subarray/description/
+
+    public int maxSubArray(int[] arr) {
+        int gSum = -(int) 1e9, cSum = 0;
+        for (int ele : arr) {
+            cSum = Math.max(ele, cSum + ele);
+            gSum = Math.max(gSum, cSum);
+        }
+        return gSum;
+    }
+
     // b <=============== K-Concatenation Maximum Sum ==============>
     // https://leetcode.com/problems/k-concatenation-maximum-sum/
 
@@ -1856,7 +1868,80 @@ public class questions {
         }
 
         return maxRes;
+    }
 
+    // b <============= 238. Product of Array Except Self =================>
+    // https://leetcode.com/problems/product-of-array-except-self/description/
+
+    // # Isme Prefix product and suffix product wala concept use kiya hai.
+
+    // Manle tera array hai [a,b,c,d]
+
+    // Prefix product will be [a,ab,abc,abcd]
+    // Suffix Product will be [abcd,bcd,cd,d]
+
+    // The product except self will be prefix[i - 1] * suffix [i + 1];
+    // For example, for index 1, i.e. b, the product except self will be prefix[0] *
+    // suffix[2] . i.e : => a * cd = acd.
+
+    // # So have applied the above formula here.
+
+    public int[] productExceptSelf(int[] arr) {
+
+        int n = arr.length, si = 0, ei = n - 1;
+        int[] prefix = new int[n];
+        int[] suffix = new int[n];
+        int pProduct = 1, sProduct = 1;
+        while (si < n && ei >= 0) {
+
+            pProduct *= arr[si];
+            prefix[si] = pProduct;
+
+            sProduct *= arr[ei];
+            suffix[ei] = sProduct;
+            si++;
+            ei--;
+        }
+
+        int[] ans = new int[n];
+        for (int i = 0; i < n; i++) {
+            ans[i] = (i - 1 >= 0 ? prefix[i - 1] : 1) * (i + 1 < n ? suffix[i + 1] : 1);
+        }
+
+        return ans;
+    }
+
+    // b <======= 152. Maximum Product Subarray =======>
+    // https://leetcode.com/problems/maximum-product-subarray/description/
+
+    // # Iska intuition ye hai, to max product hoga, wo ya to left se start hone
+    // # wale subarray ka part hoga ya to wo right se start hone wale subarray ka
+    // # part hoga.
+
+    // # Aisa kyun.
+    // Manle terpe ek array jiska product is defined by a * (ans) * b
+    // a, b can be +ve, -ve, therefore having 4 combination.
+    // Now ans can also be +ve and -ve.
+    // Hence total beecomes total 8 combination.
+
+    // Now jo bhi sare cases aayenge, unme max walon product walaon mai ya to a
+    // include hoga, ya to b ya dono . 
+
+    // # Edge case arises, when there is 0 in between.
+    // Jaise he 0 milega, wo to aage banne wale subarray ko 0 he banate rahega.
+    // To jaise he 0 encounter hua, humse product ko next iteration mai 1 se he
+    // start kiya.
+
+    public int maxProduct(int[] arr) {
+
+        int l = 0, r = 0, n = arr.length, max = -(int) 1e9;
+        for (int i = 0; i < n; i++) {
+            l = (l == 0 ? 1 : l) * arr[i];
+            r = (r == 0 ? 1 : r) * arr[n - 1 - i];
+            max = Math.max(max, Math.max(l, r));
+        }
+
+        return max;
     }
 
 }
