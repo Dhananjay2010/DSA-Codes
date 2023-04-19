@@ -936,7 +936,6 @@ public class l001 {
         return count;
     }
 
-
     // # Four Sum Using the Two sum problem
     int fourSumCount_(int[] nums1, int[] nums2, int[] nums3, int[] nums4) {
         HashMap<Integer, Integer> map = new HashMap<>();
@@ -956,4 +955,535 @@ public class l001 {
 
         return twoSumCount(A, B);
     }
+
+    // b <=============== 658. Find K Closest Elements =============>
+    // https://leetcode.com/problems/find-k-closest-elements/description/
+
+    // # Simple hai, jahan pe element ko hona chahiye wali place nikali.
+    // # Ab agar x wo place hai jahan pe element ko hona chahiye tha, to humne
+    // # max range nikali x - k and x + k karke.
+
+    // # To ye uper hamari window ho gyi. Ab hum window ko tab tak shrink karte
+    // # rahenge, jab tak humari window k elements ki nhi ho jati.
+
+    public static int insertPosition(int[] arr, int data) {
+        int si = 0, ei = arr.length - 1;
+
+        while (si <= ei) {
+            int mid = (si + ei) / 2;
+            if (arr[mid] <= data)
+                si = mid + 1;
+            else
+                ei = mid - 1;
+        }
+        return si;
+    }
+
+    public List<Integer> findClosestElements(int[] arr, int k, int x) {
+
+        List<Integer> ans = new ArrayList<>();
+        for (int ele : arr)
+            ans.add(ele);
+        int n = arr.length;
+        int idx = insertPosition(arr, x);
+        int lr = idx - k <= 0 ? 0 : idx - k;
+        int rr = idx + k >= n - 1 ? n - 1 : idx + k;
+
+        while ((rr - lr + 1) > k) {
+            if (x - arr[lr] > arr[rr] - x)
+                lr++;
+            else
+                rr--; // Agar difference left aur right ka same hai, to hum left wale element ko lenge
+                      // as given in the question.
+        }
+        return ans.subList(lr, rr + 1);
+    }
+
+    // ! Bhaiya method
+
+    public int insertPosition_(int[] arr, int data) {
+        int n = arr.length, si = 0, ei = n - 1;
+        while (si <= ei) {
+            int mid = (si + ei) / 2;
+            if (arr[mid] <= data)
+                si = mid + 1;
+            else
+                ei = mid - 1;
+        }
+        return si;
+    }
+
+    public List<Integer> findClosestElements_(int[] arr, int k, int x) {
+        ArrayList<Integer> ans = new ArrayList<>();
+        for (int ele : arr)
+            ans.add(ele);
+
+        int n = arr.length;
+        if (x <= arr[0])
+            return ans.subList(0, k);
+        else if (x >= arr[n - 1])
+            return ans.subList(n - k, n);
+        else {
+            int idx = insertPosition(arr, x);
+            int lr = Math.max(0, idx - k);
+            int rr = Math.min(n - 1, idx + k);
+
+            while ((rr - lr + 1) > k) {
+                if (x - arr[lr] > arr[rr] - x)
+                    lr++;
+                else
+                    rr--;
+            }
+            return ans.subList(lr, rr + 1);
+        }
+    }
+
+    // # 2nd Method :
+
+    // # Mai si ko uski correct position mai lana chahta hun taki mujhe si + k tak
+    // # sare elements mil jayein.
+
+    // # Maine mid nikala and compare karna start kiya.
+
+    // if (x - arr[mid] > arr[mid + k] - x)
+    // si = mid + 1;
+
+    // # Agar top wali condition hui, to mujhe mid ke left mai to si mil he nhi
+    // # sakta. Isiliye maine si ko mid + 1 mai rakh diya.
+
+    // # Else mai ei ko mid rakhunga.
+    // # Mid - 1 mai isiliye nhi rakha, kyunki maine ab tak end ko mid se compare he
+    // # nhi kiya aur mid mere answer ka part ho sakta hai.
+
+    public List<Integer> findClosestElements_02(int[] arr, int k, int x) {
+        ArrayList<Integer> ans = new ArrayList<>();
+        for (int ele : arr)
+            ans.add(ele);
+
+        int n = arr.length;
+        if (x <= arr[0])
+            return ans.subList(0, k);
+        else if (x >= arr[n - 1])
+            return ans.subList(n - k, n);
+        else {
+            int si = 0, ei = n - k;
+            while (si < ei) {
+                int mid = (si + ei) / 2;
+                if (x - arr[mid] > arr[mid + k] - x)
+                    si = mid + 1;
+                else
+                    ei = mid;
+            }
+            return ans.subList(si, si + k);
+        }
+    }
+
+    // # 1st method : O(k)
+    // # 2nd method : O(logn + k) // k to cut the sublist at the end.
+
+    // b <=============== 300. Longest Increasing Subsequence ============>
+    // https://leetcode.com/problems/longest-increasing-subsequence/description/
+
+    // Arraylist mai har ek index ko bas ek baat se matlab hai ki uspe khatam hone
+    // wala be n length ka LIS hai wo exist karta hai ki nhi. Agar karta hai to wo
+    // whan pe apne aap ko place kar dega.
+
+    // To maine ye kiya, har ek element ko correct position nikali jahan pe wo ho
+    // sakta hai arraylist mai aur arraylist ka har ek index pe rakha hua element
+    // denote karta hai us pe khatam hone wala max length ka LIS aur length hogi
+    // index + 1.
+
+    // # This method gives us the correct length, not the correct sequence.
+    // ! O(nlogn)
+
+    public static int insertPosition_list(ArrayList<Integer> list, int data) {
+        int n = list.size(), si = 0, ei = n - 1;
+        while (si <= ei) {
+            int mid = (si + ei) / 2;
+            if (list.get(mid) <= data)
+                si = mid + 1;
+            else
+                ei = mid - 1;
+        }
+        int insertIdx = si;
+        int lastIndex = insertIdx - 1;
+        return lastIndex >= 0 && list.get(lastIndex) == data ? lastIndex : insertIdx; // wrote this for duplicates.
+
+        // Agar mai jo element search karne aaya , wo already list mai present tha, to
+        // mujhe bas use replace karna hai usi ki jagah pe.
+    }
+
+    public int lengthOfLIS(int[] nums) {
+
+        int n = nums.length;
+        if (n <= 1)
+            return n;
+
+        ArrayList<Integer> list = new ArrayList<>();
+        for (int ele : nums) {
+            int idx = insertPosition_list(list, ele);
+            if (idx == list.size()) // insert position last hai, matlab koi bada element mila hai last index se, to
+                                    // wo mere LIS ka size increase karega.
+                list.add(ele);
+            else
+                list.set(idx, ele);
+        }
+        return list.size();
+    }
+
+    // b <========== 875. Koko Eating Bananas =================>
+    // https://leetcode.com/problems/koko-eating-bananas/
+
+    // So we have to try a range of values of k, so that we find our best answer.
+
+    // `But Since 1 <= piles[i] <= 10^9, so therefore if we try every value, then
+    // we would have 10^9 iteration.
+
+    // So what to do.
+    // We can keep our min value to k=1, that will be good. But what about the max
+    // value. We have to keep it, the max value of the array given.
+
+    // # But if we try to find the max value of the array, it will take 10^4
+    // # iteration since 1 <= piles.length <= 10^4.
+
+    // Now we can use binary search to find different values of k, that will use
+    // logn time.
+
+    public static boolean isPossibleToEat(int[] arr, int k, int hours) {
+
+        int n = arr.length, h = 0;
+        for (int i = n - 1; i >= 0; i--) {
+            h += Math.ceil((arr[i]) / (k / 1.0)); // Divide by 1.0 to make it a double quantity so that we can get ceil
+                                                  // value of the floating point.
+            if (h > hours)
+                return false;
+        }
+
+        return true;
+    }
+
+    public int minEatingSpeed(int[] piles, int h) {
+
+        int si = 1, ei = (int) 1e9;
+        while (si < ei) {
+            int eatingSpeed = (si + ei) / 2;
+            if (!isPossibleToEat(piles, eatingSpeed, h))
+                si = eatingSpeed + 1;
+            else
+                ei = eatingSpeed; // If possible to eat, we have to save the answer since it can be actual answer.
+        }
+
+        // piles = [30,11,23,4,20], h = 5
+        // ` k= 32 will also give 5 hours and k=30 will also give the same answer. But
+        // since 30 is smaller, we have to return it. Therefore ei have been moved to
+        // eatingSpeed.
+        return si;
+    }
+
+    // b <=============== 2594. Minimum Time to Repair Cars ==========>
+    // https://leetcode.com/problems/minimum-time-to-repair-cars/description/
+
+    // # same followed the above method.
+
+    public static boolean isAbleToRepair(int[] ranks, int cars, long time) {
+        long c = 0;
+        for (int ele : ranks) {
+            c += Math.sqrt(time / ele);
+        }
+        return c >= cars;
+    }
+
+    public long repairCars(int[] ranks, int cars) {
+
+        long si = 1, ei = (long) 1e14; // 1e14 since 1 <= ranks[i] <= 100 and 1 <= cars <= 10^6
+        while (si < ei) {
+            long estimatedTime = (si + ei) / 2;
+            if (!isAbleToRepair(ranks, cars, estimatedTime))
+                si = estimatedTime + 1;
+            else
+                ei = estimatedTime;
+        }
+        return ei;
+    }
+
+    // b <======= 2064. Minimized Maximum of Products Distributed to Any Store ==>
+    // https://leetcode.com/problems/minimized-maximum-of-products-distributed-to-any-store/description/
+
+    public static boolean isAbleToDistribute(int[] arr, int stores, int maxProduct) {
+
+        int s = 0;
+        for (int ele : arr) {
+            s += Math.ceil((ele) / (maxProduct / 1.0));
+            if (s > stores)
+                return false;
+        }
+        // return s<=stores; // can write only this return statement.
+        // Have included less than check because it says that some stores can possibly
+        // have 0 products given to them.
+        return true;
+    }
+
+    public int minimizedMaximum(int n, int[] quantities) {
+
+        int si = 1, ei = (int) 1e5; // 1e5 since max value is given.
+        while (si < ei) {
+            int maxProduct = (si + ei) / 2;
+            if (!isAbleToDistribute(quantities, n, maxProduct))
+                si = maxProduct + 1;
+            else
+                ei = maxProduct;
+        }
+        return si;
+    }
+
+    // b <============== 1760. Minimum Limit of Balls in a Bag =============>
+    // https://leetcode.com/problems/minimum-limit-of-balls-in-a-bag/description/
+
+    public boolean isAbleToDivide(int[] nums, int maxOperations, int penalty) {
+
+        int operations = 0;
+        for (int ele : nums) {
+            operations += Math.ceil((ele) / (penalty / 1.0)) - 1;
+            if (operations > maxOperations)
+                return false;
+        }
+
+        return true;
+    }
+
+    public int minimumSize(int[] nums, int maxOperations) {
+
+        int si = 1, ei = (int) 1e9;
+
+        while (si < ei) {
+            int penalty = (si + ei) / 2;
+
+            if (!isAbleToDivide(nums, maxOperations, penalty))
+                si = penalty + 1;
+            else
+                ei = penalty;
+        }
+        return si;
+    }
+
+    // b <==================1011. Capacity To Ship Packages Within D Days===>
+    // https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/description/
+
+    public boolean isPossibleToShip(int[] weight, int capacity, int days) {
+        int d = 1;
+        int totalWeightPerDay = 0;
+        for (int w : weight) {
+            totalWeightPerDay += w;
+            if (totalWeightPerDay > capacity) {
+                d++;
+                totalWeightPerDay = w;
+            }
+
+            if (d > days)
+                return false;
+        }
+
+        return true;
+    }
+
+    public int shipWithinDays(int[] weights, int days) {
+        int maxEle = 0, sum = 0;
+        for (int w : weights) {
+            maxEle = Math.max(maxEle, w);
+            sum += w;
+        }
+
+        // Since we cannot devide one package into two, So the least capacity required
+        // is max element of the array.
+        // And if said that all the pacages need to be send in one day, so the
+        // maxCapacity will be the sum of all the packages weights.
+        int si = maxEle, ei = sum;
+        while (si < ei) {
+            int capacity = (si + ei) / 2;
+            if (!isPossibleToShip(weights, capacity, days))
+                si = capacity + 1;
+            else
+                ei = capacity;
+        }
+
+        return si;
+    }
+
+    // ! 2nd Method :
+
+    public boolean isPossibleToShip2(int[] weight, int capacity, int days) {
+        int d = 1;
+        int totalWeightPerDay = 0;
+        for (int w : weight) {
+            if (w > capacity) // If any time, single package weight is more than the min capacity, we will not
+                              // `be able to deliver the package. Hence return false.
+                return false;
+            totalWeightPerDay += w;
+            if (totalWeightPerDay > capacity) {
+                d++;
+                totalWeightPerDay = w;
+            }
+
+            if (d > days)
+                return false;
+        }
+
+        return true;
+    }
+
+    public int shipWithinDays2(int[] weights, int days) {
+        int si = 1, ei = (int) 1e7; // Since we are not finding the min and the max value here, at above we have to
+                                    // add check if the any package weight is more than minCapacity, then return
+                                    // false.
+        while (si < ei) {
+            int capacity = (si + ei) / 2;
+            if (!isPossibleToShip(weights, capacity, days))
+                si = capacity + 1;
+            else
+                ei = capacity;
+        }
+
+        return si;
+    }
+
+    // # Follow up :
+    // The above question, the order is pick package is in the sequence. First 0,
+    // then 1 and so on..
+    // Now if asked, the order of picking a packege can be any. Then find the min
+    // days to ship package. Then this becomes a dp problem, where isPossilbeToShip
+    // code will change accordingly.
+
+    // Matlab mai packages ko group kar sakta hun in any order.
+
+    // B <================ Maximum Possible Area to Serve ===========>
+    // ! Good question since binary search is applied in double.
+
+    public boolean isPossibleToServeCake(int[] radiusArray, double cakeArea, int guest) {
+        int g = 0;
+        for (int i = radiusArray.length - 1; i >= 0; i--) {
+            double area = Math.PI * radiusArray[i] * radiusArray[i];
+            g += Math.floor(area / cakeArea);
+            if (g >= guest)
+                return true;
+
+        }
+        return false;
+    }
+
+    public double maximumAreaCake(int[] radius, int guest) {
+        Arrays.sort(radius);
+        int n = radius.length;
+        double si = (Math.PI * radius[0] * radius[0]) / guest, ei = Math.PI * radius[n - 1] * radius[n - 1];
+        // If we want to be not exact with si and ei, we can have si = 0.0,ei = 1e6;
+        // Else the min area that we can give to a guest is the smallest cake area
+        // divided by guest.
+        // The max area of the cake that we can give to gueest will be the whole largest
+        // cake.
+
+        while ((ei - si) > 1e-5) { // # Used 10e-5 since answer is asked upto 4 decimal places.
+            double cakeArea = (si + ei) / 2.0;
+            if (!isPossibleToServeCake(radius, cakeArea, guest))
+                ei = cakeArea - 1e-5;
+            else
+                si = cakeArea;
+        }
+        return si;
+    }
+
+    // b <===============minimize-max-distance-to-gas-station(blocked) ============>
+    // https://leetcode.com/problems/minimize-max-distance-to-gas-station/
+
+    // For a given distance, humne humber of gas station nikale. Agar loop khatam
+    // hone se pehle he noOfGasStation greater hote hain k se, to wo distance kabhi
+    // `bhi valid nhi hogi, since aage ke jo stations hain, unhe kabhi isme include
+    // he nhi kiya. Shayad hume aage koi aur distance mile do stations ke beech mai
+    // jinka distance bada nikle.
+
+    // stations = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    // K = 9
+    // Output: 0.50
+
+    // For the test case, (2-1)/.5 = 2;
+    // So have to -1 from the answer to get the actual result.
+
+    public boolean itIsCorrectPenatly(int[] arr, double distance, int k) {
+        int noOfGasStation = 0, n = arr.length;
+        for (int i = 1; i < n; i++) {
+            noOfGasStation += Math.ceil((arr[i] - arr[i - 1]) / distance) - 1;
+            if (noOfGasStation > k)
+                return false;
+        }
+        return true;
+    }
+
+    public double minmaxGasDist(int[] stations, int k) {
+        double si = 0.0, ei = 1e9;
+        while ((ei - si) > 1e-6) {
+            double distance = (ei + si) / 2.0;
+            if (!itIsCorrectPenatly(stations, distance, k))
+                si = distance + 1e-6;
+            else
+                ei = distance;
+        }
+        return si;
+    }
+
+    // b <============ 2226. Maximum Candies Allocated to K Children ========>
+    // https://leetcode.com/problems/maximum-candies-allocated-to-k-children/description/
+
+    // ! Very Good Question
+
+    public boolean isAbleToAllocate(int[] candies, long k, long maxCandies) {
+        long piles = 0;
+        for (int ele : candies) {
+            piles += ele / maxCandies;
+        }
+        return piles >= k;
+    }
+
+    public int maximumCandies(int[] candies, long k) {
+        long si = 0, ei = (long) 1e12; // si=0 since 0 can also be a answer.
+        while (si < ei) {
+            long maxCandy = (si + ei + 1) / 2;
+            if (!isAbleToAllocate(candies, k, maxCandy))
+                ei = maxCandy - 1;
+            else {
+                si = maxCandy;
+            }
+        }
+
+        return (int) si;
+    }
+
+    // # Why do (si + ei + 1) / 2 ????
+    // Very simple rule:
+    // When using mid and mid-1 put (l + r + 1) // 2 what I call a higher mid
+    // When using mid and mid + 1 put (l + r)//2 what I call a lower mid
+
+    // This is because we want to guarantee to push the boundaries in both cases.
+    // When using r=mid and l=mid +1 we are always pushing the lower boundary with
+    // mid+1 so to also push the higher boundary we use by default a lower mid (aka
+    // l+r/2). And vice versa. If you don't guarantee to push the boundaries by at
+    // least 1 you can get into an infinite loop.
+
+    // Say low = 1 and high = 2.
+    // If you take mid as low+(high-low)/2, then mid = 1.
+    // Suppose k <= sum for mid = 1, then you set low = 1 again! That's why you get
+    // TLE.
+    // To avoid above case, we take mid as (low+high+1)/2.
+
+    // b <======================= 2498. Frog Jump II ===============>
+    // https://leetcode.com/problems/frog-jump-ii/description/
+
+    // # Just check every alternative index difference.
+
+    public int maxJump(int[] stones) {
+        int ans = stones[1], n = stones.length;
+        for (int i = 2; i < n; i++) {
+            ans = Math.max(ans, stones[i] - stones[i - 2]);
+        }
+
+        return ans;
+    }
+
 }
