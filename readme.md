@@ -8,11 +8,12 @@
 
 Topics covered are :-
 
-1. Trees
-2. Graph
-3. Dynamic Programming
-4. Stock Buy Sell and Game Theory
+1. Trees.
+2. Graph.
+3. Dynamic Programming.
+4. Stock Buy Sell and Game Theory.
 5. Arrays and String.
+6. Searching and Sorting.
 
 
 Suggestions are always welcomed:grinning:.
