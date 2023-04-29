@@ -14,6 +14,8 @@ Topics covered are :-
 4. Stock Buy Sell and Game Theory.
 5. Arrays and String.
 6. Searching and Sorting.
+7. Heap (Priority Queue) with construction. 
+8. HashMap with construction. 
 
 
 Suggestions are always welcomed:grinning:.
