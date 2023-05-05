@@ -434,4 +434,168 @@ public class l003_LIS {
         return maxLen;
     }
 
+    // b <=========413. Arithmetic Slices ============>
+    // https://leetcode.com/problems/arithmetic-slices/description/
+
+    // We will increase the window till the difference is same.
+    // When the difference is not same, we will start shrinking the window till the
+    // ` both ei and si come to same position.
+
+    // # [1,2,3,4,5,7,9,11] , [7,7,7,7,7,7] Test case to dry run.
+
+    public int numberOfArithmeticSlices_subarray(int[] nums) {
+
+        int n = nums.length;
+
+        if (n < 3)
+            return 0;
+
+        int si = 0, ei = 0, d = 5000, totalSlices = 0;
+
+        while (ei < n - 1) {
+            int currVal = nums[ei], nextVal = nums[ei + 1];
+            if (nextVal - currVal != d) {
+                while (si != ei) { // Shrinking the window.
+                    int count = ei - si - 1; // This will be -ve if the length of the subarray is less than 3.
+                    totalSlices += count >= 0 ? count : 0;
+                    si++;
+                }
+                d = nextVal - currVal;
+            }
+            ei++;
+        }
+        // It may happen that after the above loop has been terminated, there is still a
+        // window left. Hence shrinking the window again to get all the subarrays.
+        while (si != ei) {
+            int count = ei - si - 1;
+            totalSlices += count >= 0 ? count : 0;
+            si++;
+        }
+
+        return totalSlices;
+    }
+
+    // # Bhaiya method :
+
+    // The idea of this approach lies behind the simple observation, but little
+    // tricky because we have min length of subset.
+    // Every extra element in the subsequence increases amount of subsets by length
+    // of subsequence.
+    // For example we have [1,2,3] with 1 correct subset, and we have just added 4
+    // to it.
+    // That mean we got new subsets 1234 and 234, why that? we already had 123
+    // ` before so we can construct only 2 more.
+    // ` But at this point the relation is still not very obvious
+    // Lets add on more digit, we had [1,2,3,4] from previous step with 3 correct
+    // subsets. Now we will have [1,2,3,4,5]
+    // Which subsets did we got? 12345, 2345, 345.
+    // Lets add on more digit, we had [1,2,3,4,5] with 6 correct subsets. Now we
+    // will have [1,2,3,4,5,6].
+    // Which subsets did we got? 123456 23456 3456 456
+
+    public int numberOfArithmeticSlices_(int[] arr) {
+        if (arr.length < 3)
+            return 0;
+
+        int ans = 0;
+        int count = 0;
+
+        for (int i = 1; i < arr.length - 1; i++) {
+
+            int d1 = arr[i] - arr[i - 1];
+            int d2 = arr[i + 1] - arr[i];
+
+            if (d1 == d2)
+                ans += (++count);
+            else
+                count = 0;
+        }
+
+        return ans;
+    }
+
+    // b<=======446. Arithmetic Slices II - Subsequence ===========>
+    // https://leetcode.com/problems/arithmetic-slices-ii-subsequence/description/
+
+    // # Maine same faith rakha hai.
+
+    // Maine kaha ki do elements ka diff nikala aur kahan iss difference ke sath aur
+    // elements ke conbination dhundho.
+
+    // Aur since ye subsequence hai, to maine diff har ek apne se aage wale element
+    // ke sath check kiya.
+
+    // For example we have [1,2,3] with 1 correct subset, and we have just added 4
+    // to it.
+    // That mean we got new subsets 1234 and 234, why that? we already had 123
+    // ` before so we can construct only 2 more.
+    // ` But at this point the relation is still not very obvious
+    // Lets add on more digit, we had [1,2,3,4] from previous step with 3 correct
+    // subsets. Now we will have [1,2,3,4,5]
+    // Which subsets did we got? 12345, 2345, 345.
+    // Lets add on more digit, we had [1,2,3,4,5] with 6 correct subsets. Now we
+    // will have [1,2,3,4,5,6].
+
+    // No need for base case since for loop will handle it.
+
+    // ! Recursion :
+
+    public int numberOfArithmeticSlices_recu(int[] nums, int idx, long diff) {
+        int n = nums.length;
+        int count = 0;
+        for (int i = idx + 1; i < n; i++) {
+            long currDiff = (long) nums[i] - (long) nums[idx];
+            if (currDiff == diff) {
+                count += 1 + numberOfArithmeticSlices_recu(nums, i, diff);
+            }
+        }
+
+        return count;
+    }
+
+    public int numberOfArithmeticSlices_recu(int[] nums) {
+        int n = nums.length;
+
+        int ans = 0;
+        for (int i = 0; i < n - 2; i++) {
+            for (int j = i + 1; j < n - 1; j++) {
+                long diff = (long) nums[j] - (long) nums[i];
+
+                ans += numberOfArithmeticSlices_recu(nums, j, diff);
+            }
+        }
+
+        return ans;
+    }
+
+    // ! Memoisation :
+
+    public int numberOfArithmeticSlices_memo(int[] nums, int idx, long diff, int[] dp) {
+        int n = nums.length;
+        int count = 0;
+        if (dp[idx] != 0)
+            return dp[idx];
+        for (int i = idx + 1; i < n; i++) {
+            long currDiff = (long) nums[i] - (long) nums[idx];
+            if (currDiff == diff) {
+                count += 1 + numberOfArithmeticSlices_memo(nums, i, diff, dp);
+            }
+        }
+
+        return dp[idx] = count;
+    }
+
+    public int numberOfArithmeticSlices(int[] nums) {
+        int n = nums.length;
+        int ans = 0;
+        for (int i = 0; i < n - 2; i++) {
+            for (int j = i + 1; j < n - 1; j++) {
+                int[] dp = new int[n + 1];
+                long diff = (long) nums[j] - (long) nums[i];
+                ans += numberOfArithmeticSlices_memo(nums, j, diff, dp);
+            }
+        }
+        return ans;
+    }
+
 }
