@@ -1,9 +1,11 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.TreeSet;
 
 public class heapQuestions {
 
@@ -542,54 +544,158 @@ public class heapQuestions {
         return new int[] { sp, ep };
     }
 
+    // b <===========295. Find Median from Data Stream ===============>
+    // https://leetcode.com/problems/find-median-from-data-stream/description/
 
-    // b <================ Cherry Pickup =================>
-    // https://leetcode.com/problems/cherry-pickup/
+    // Consider that we have to find median. Now to find median, we need to have two
+    // ranges, left range and right range. Now median will be either in left range
+    // or in right range or in between two.
 
-    public static int dfs_bt(int sr, int sc, int[][] grid) {
-        if (sr == 0 && sc == 0) {
-            return 0;
+    // We need to know the max of the left range and the min of right range.
+    // The only DS that will help us is the priority queue.
+
+    // We will have two priority queue. Min and Max.
+
+    // We are considering the median to be left oriented. Means that either the
+    // median will lie in the left range(left range max) or in between the left max
+    // or right min(for even number values.)
+
+    // Now to imagine what is hapenning, draw a number line and start adding numbers
+    // to it. also start marking the median changes that happen when you add the
+    // numbers.
+
+    // So values less than equal to median, goes to maxPriority queue.
+    // Values greater than median, goes to minPriority queue.
+
+    // Now to make sure that the values less than equal to median lies in maxPq, so
+    // shifting has to be done.
+
+    // Adding the element greater than median shifts the median to the right.
+    // Adding the element less than median shifts the median to the left.
+
+    // In case we start adding (1,2,3,4,10) in sequence, we find that median
+    // shifting occurs so one element has to be moved to max priority queue from
+    // min pq.
+
+    // Now if we add (-3,-4) to the same sequence, now the median shift to the left
+    // and one element has to be monved to min priority queue from max priority
+    // queue.
+
+    // # If all integer numbers from the stream are between 0 and 100, how would you
+    // # optimize it?
+
+    // ` bucket sort, create an array of bucket of length 101, keep the count of
+    // numbers in each bucket, and the count of overall numbers, then it's easy to
+    // locate the bucket where the median number resides and find the median by
+    // looping through the array-> O(1)
+
+    class MedianFinder {
+
+        private PriorityQueue<Integer> maxpq;
+        private PriorityQueue<Integer> minpq;
+
+        public MedianFinder() {
+            maxpq = new PriorityQueue<>((a, b) -> { // initializing max priority queue.
+                return b - a;
+            });
+
+            minpq = new PriorityQueue<>();
         }
-        int[][] dir = { { -1, 0 }, { 0, -1 } };
 
-        int maxCheries = 0;
+        public void addNum(int num) {
+            if (maxpq.size() == 0 || num <= maxpq.peek())
+                maxpq.add(num);
+            else
+                minpq.add(num);
 
-        for (int d = 0; d < dir.length; d++) {
-            int r = sr + dir[d][0];
-            int c = sc + dir[d][1];
+            if (maxpq.size() - minpq.size() == -1)
+                maxpq.add(minpq.remove());
+            if (maxpq.size() - minpq.size() == 2)
+                minpq.add(maxpq.remove());
 
-            if (r >= 0 && c >= 0 && r < grid.length && c < grid[0].length && grid[r][c] != -1) {
-                int val = grid[sr][sc];
-                grid[sr][sc] = 0;
-                maxCheries = Math.max(maxCheries, dfs_bt(r, c, grid));
-                grid[sr][sc] = val;
-            }
         }
 
-        return maxCheries + grid[sr][sc];
+        public double findMedian() {
+            if (maxpq.size() == minpq.size())
+                return (maxpq.peek() + minpq.peek()) / 2.0;
+            else
+                return maxpq.peek() * 1.0;
+        }
     }
 
-    public static int dfs_tb(int sr, int sc, int[][] grid) {
+    // b <============== 480. Sliding Window Median =============>
+    // https://leetcode.com/problems/sliding-window-median/description/
 
-        if (sr == grid.length - 1 && sc == grid[0].length - 1) {
-            return dfs_bt(sr, sc, grid);
-        }
-        int[][] dir = { { 0, 1 }, { 1, 0 } };
-        int maxCheries = 0;
-        for (int d = 0; d < dir.length; d++) {
-            int r = sr + dir[d][0];
-            int c = sc + dir[d][1];
+    // Logic same sa above.
+    // Ab hume element ko remove nbhi karna hai, to isliye tree set ka use kiya
+    // kyunki treeset mai removal logN ka hota hai. In Priority Queue mai removal of
+    // a specific element n + Logn ka hota hai.
 
-            if (r >= 0 && c >= 0 && r < grid.length && c < grid[0].length && grid[r][c] != -1) {
-                int val = grid[sr][sc];
-                grid[sr][sc] = 0;
-                maxCheries = Math.max(maxCheries, dfs_tb(r, c, grid));
-                grid[sr][sc] = val;
+    // N element ko dhundhne ke liye aur logN removal ke liye.
+
+    // Kyunki hum tree set use kar rahe hain aur humare array mai duplicates values
+    // ho sakti hai, to hum index ko dalenge treeset mai.
+
+    // Baki pura logic same hai uper wale ki tarah.
+
+    public double[] medianSlidingWindow(int[] nums, int k) {
+        int len = nums.length;
+        double[] result = new double[len - k + 1];
+        if (k == 1) {
+            for (int i = 0; i < len; i++) {
+                result[i] = (double) nums[i];
             }
+            return result;
         }
 
-        return maxCheries + grid[sr][sc];
+        // Wrote this comparator since -2^31 <= nums[i] <= 2^31 - 1. Hence so comparison
+        // are of higher number.
+        Comparator<Integer> comparator = (a,
+                b) -> (nums[a] != nums[b] ? Integer.compare(nums[a], nums[b]) : Integer.compare(a, b));
+        TreeSet<Integer> minSet = new TreeSet<>(comparator);
+        TreeSet<Integer> maxSet = new TreeSet<>(comparator.reversed());
+        int n = nums.length;
+        double[] ans = new double[n - k + 1];
+        int j = 0;
+        for (int i = 0; i < n; i++) {
+            if (maxSet.size() + minSet.size() == k)
+                remove(minSet, maxSet, i - k, k, nums);
 
+            addNumber(minSet, maxSet, i, k, nums);
+            if (i >= k - 1)
+                ans[j++] = getMedian(minSet, maxSet, nums);
+        }
+        return ans;
     }
 
+    private static void addNumber(TreeSet<Integer> minSet, TreeSet<Integer> maxSet, int idx, int k, int[] nums) {
+        if (idx == 0 || nums[idx] <= nums[maxSet.first()])
+            maxSet.add(idx);
+        else
+            minSet.add(idx);
+
+        if (maxSet.size() - minSet.size() == 2)
+            minSet.add(maxSet.pollFirst());
+        if (maxSet.size() - minSet.size() == -1)
+            maxSet.add(minSet.pollFirst());
+    }
+
+    private static void remove(TreeSet<Integer> minSet, TreeSet<Integer> maxSet, int idx, int k, int[] nums) {
+        if (nums[idx] <= nums[maxSet.first()])
+            maxSet.remove(idx);
+        else
+            minSet.remove(idx);
+
+        if (maxSet.size() - minSet.size() == 2)
+            minSet.add(maxSet.pollFirst());
+        if (maxSet.size() - minSet.size() == -1)
+            maxSet.add(minSet.pollFirst());
+    }
+
+    private static double getMedian(TreeSet<Integer> minSet, TreeSet<Integer> maxSet, int[] nums) {
+        if (minSet.size() == maxSet.size())
+            return ((double) nums[minSet.first()] + (double) nums[maxSet.first()]) / 2.0;
+        else
+            return nums[maxSet.first()] * 1.0;
+    }
 }

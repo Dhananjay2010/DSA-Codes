@@ -514,6 +514,41 @@ public class l003_LIS {
         return ans;
     }
 
+    // b <=============2110. Number of Smooth Descent Periods of a Stock====>
+    // https://leetcode.com/problems/number-of-smooth-descent-periods-of-a-stock/description/
+
+    // Logic is same as above. using sliding window.
+    // Dry run ans you will get the answer.
+
+    public long getDescentPeriods(int[] prices) {
+
+        int n = prices.length;
+        if (n == 1)
+            return 1;
+
+        int si = 0, ei = 0;
+        long totalArrays = 0;
+
+        while (ei < n - 1) {
+            int currVal = prices[ei], nextVal = prices[ei + 1];
+            if (currVal - nextVal != 1) { // Shrinking the window.
+                while (si <= ei) {
+                    int count = ei - si + 1;
+                    totalArrays += count;
+                    si++;
+                }
+            }
+            ei++; // Increasing the window.
+        }
+        while (si <= ei) { // After the termination of the above loop, a window might still be left. So
+                           // shrinking the window again to get all the remaining subarrays.
+            int count = ei - si + 1;
+            totalArrays += count;
+            si++;
+        }
+        return totalArrays;
+    }
+
     // b<=======446. Arithmetic Slices II - Subsequence ===========>
     // https://leetcode.com/problems/arithmetic-slices-ii-subsequence/description/
 
