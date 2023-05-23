@@ -13,7 +13,7 @@ public class client {
         hm.put(80, 400);
 
         hm.put(90, 100);
-        hm.put(110, 200);
+        hm.put(110, 200); // after this rehashing occurs
         hm.put(130, 200);
         hm.put(140, 200);
         hm.put(150, 200);
