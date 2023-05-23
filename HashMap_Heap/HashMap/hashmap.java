@@ -36,15 +36,9 @@ public class hashmap {
         public int numberOfElements;
 
         linkedList() {
-
             this.head = null;
             this.tail = null;
             this.numberOfElements = 0;
-        }
-
-        linkedList(Node head, Node tail) {
-            this.head = head;
-            this.tail = tail;
         }
 
         public int size() {
@@ -61,7 +55,7 @@ public class hashmap {
             if (this.numberOfElements == 0)
                 this.head = this.tail = null;
             else {
-                this.head.next = node.next;
+                this.head = node.next;
                 node.next = null;
             }
 
@@ -93,6 +87,29 @@ public class hashmap {
 
     hashmap() {
         assignValues(10);
+    }
+
+    public String display() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        int count = 0;
+        for (int i = 0; i < this.containers.length; i++) {
+            linkedList group = this.containers[i];
+            int size = group.size();
+
+            while (size-- > 0) {
+                Node node = group.removeFirst();
+                sb.append("{" + node.key + "=" + node.value + "}");
+                count++;
+
+                if (count != sizeOfHM)
+                    sb.append(",");
+                group.addLast(node);
+            }
+        }
+
+        sb.append("]");
+        return sb.toString();
     }
 
     private void rehash() {
@@ -132,7 +149,7 @@ public class hashmap {
             // hain, hence search efficient ho jata hai.
 
             double lamda = (group.size() / this.containers.length * 1.0);
-            if (lamda < 0.725)
+            if (lamda > 0.725)
                 rehash();
         }
     }
@@ -202,6 +219,7 @@ public class hashmap {
     private linkedList group(Integer key) {
         int code = hashcode(key);
         return this.containers[code];
+
     }
 
     private int hashcode(Integer key) {
