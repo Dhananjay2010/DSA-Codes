@@ -280,4 +280,11 @@ public class hashmap {
         return value % this.containers.length;
     }
 
+    // # Hashmap of string is a very costly combination.
+    // Since jab bhi contains ya get likhte hain, tab hashcode nikalna padta hains
+    // string ka, joki costly operation hota hai.
+
+    // # Primitive data type ka hashcode generate nhi hota. ISiliye Integer use kiya
+    // # hai.
+
 }
