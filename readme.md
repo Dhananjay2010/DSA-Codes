@@ -16,6 +16,7 @@ Topics covered are :-
 6. Searching and Sorting.
 7. Heap (Priority Queue) with construction. 
 8. HashMap with construction. 
+9. Stack with construction.
 
 
 Suggestions are always welcomed:grinning:.
