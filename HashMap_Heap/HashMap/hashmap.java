@@ -2,7 +2,64 @@ import java.util.ArrayList;
 
 public class hashmap {
 
-    // Series to write the function of hashmap.
+    // Consider a circumstance we have a given array with 10th strings in it. We
+    // want to know if a particular string is present in that array or not for that
+    // what we will have to do if we loop through the array and for every element in
+    // the array check if that match to the string required or not now this time
+    // complexity will you be off n no consider this array fill with one lakh
+    // elements and to search in that array will be a very tedius task so what we do
+    // this instead of putting those elements and array before them in a hashmap so
+    // what hashmap does this it groups the elements what grouping means is that it
+    // is going to divide all the elements to certain groups according to a formula
+    // decided by us.
+
+    // So when we try to add an element in a hash map what happens is it as that
+    // element to a particular group and instead of searching in the whole array or
+    // the whole hash map research the element in that particular group which it
+    // would have existed or would have been present. so it optimises the search in
+    // a very efficient way.
+
+    // So now what to do is to create a hash map we take an array of in starting a
+    // fixed size each index of that array has a group represented in the form of a
+    // linked list now when we talk about link list each link list has very number
+    // of nodes and since hashmap is a key value pair therefore each node of that
+    // link list will have key and value and next that will store the address of the
+    // next node.
+
+    // For now, since we are creating an integer versus integer hash map so we need
+    // something to identify what group a specific element or key belongs to do that
+    // what we do we take a hashing function and apply it to our key. And since we
+    // only have containers dot length number of groups so to find the group what we
+    // do with be modulus it by the containers. length hence it will only give us
+    // the groups between zero and containers. length -1.
+
+    // Now once we have found the group and we know that each group is a linked list
+    // we will add that key to that linked list by using the add last function of
+    // the linked list. hence in this way, a hashmap is formed.
+
+    // # Why rehashing ??
+
+    // Now what if my group size starts to increase so now each group will have more
+    // elements now more elements mean the searching in that group will not be
+    // optimised any again we are stuck in the same situation as an array that we
+    // have to iterate through the whole array to in to find the element so what we
+    // have to do is whenever our number of elements in a group exceeds a certain
+    // amount that we decide what we do is we rehash the whole hash map.
+
+    // Now what hashing means is to increase the length of the container so that the
+    // number of groups in the hashmap increases and again iterate to all the keys
+    // present in that hashmap that was earlier present and assign them to new
+    // groups now this is a computer process which takes time, therefore, is not
+    // always a fine solution we should use it but carefully
+
+    // The number of increasing elements in a group is also known as collisions so
+    // as the number of elements in a group increases the collision increases to
+    // reduce the collisions in that group will hash the whole hash map so that the
+    // number of elements in a group reduces and hands the collision reduces and
+    // hence the searching time in that group decreases hence optimising the
+    // searching time.
+
+    // # Series to write the function of hashmap.
     // 1. hashcode
     // 2. group
     // 3. containsKey
@@ -17,10 +74,6 @@ public class hashmap {
         private Integer key;
         private Integer value;
         private Node next;
-
-        Node() {
-
-        }
 
         Node(Integer key, Integer value) {
             this.key = key;
