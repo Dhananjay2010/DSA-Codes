@@ -1,23 +1,63 @@
 public class stack {
-
     private int[] arr;
     private int tos;
-    private int noOfElememts;
-    private int maxCapacity;
+    private int NoOfElements;
+    private int MaxCapacity;
 
     stack(int size) {
-
+        initialize(size);
     }
 
     stack() {
-        this(15);
+        this(10);
     }
 
     protected void initialize(int size) {
-        this.arr = new int[size];
+        this.NoOfElements = 0;
+        this.MaxCapacity = size;
+        this.arr = new int[this.MaxCapacity];
         this.tos = -1;
-        this.noOfElememts = 0;
-        this.maxCapacity = size;
     }
 
+    private void overflowException() throws Exception {
+        if (this.NoOfElements == this.MaxCapacity)
+            throw new Exception("StackIsOverflow");
+    }
+
+    private void underflowException() throws Exception {
+        if (this.NoOfElements == 0)
+            throw new Exception("StackIsUnderflow");
+    }
+
+    public void display() {
+        for (int i = this.tos; i >= 0; i--) {
+            System.out.print(this.arr[i] + " ");
+        }
+    }
+
+    public int capacity() {
+        return this.MaxCapacity;
+    }
+
+    public int size() {
+        return this.NoOfElements;
+    }
+
+    public void push(int data) throws Exception {
+        overflowException();
+        this.arr[++this.tos] = data;
+        this.NoOfElements++;
+    }
+
+    public int peek() throws Exception {
+        underflowException();
+        return this.arr[this.tos];
+    }
+
+    public int pop() throws Exception {
+        underflowException();
+        int rv = this.arr[this.tos--];
+        this.NoOfElements--;
+        return rv;
+    }
 }
